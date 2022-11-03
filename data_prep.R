@@ -50,26 +50,9 @@ df$Month <- str_replace(df$Month, "Juli", "July")
 df$Month <- str_replace(df$Month, "Oktober", "October")
 
 
-# Add missing data
-df[is.na(df)] <- 0 # Replace not NA with 0, we will later replace these zeros with the means 
+# Remove missing data points 
 
-# The data for the number of rooms is missing in datapoints: 28, 113, 115, 560, 727, 806
-for (idx in c(28, 119, 115, 560, 727, 806)) {
-  df$Rooms[idx] <- mean(df$Rooms)
-}
-
-# The ground area is missing: 66, 271, 493
-mean(df$Ground_Area)
-for (idx in c(66, 271, 493)) {
-  df$Ground_Area[idx] <- mean(df$Ground_Area)
-  if (df$Ground_Area[idx] > 1448) {
-    df$Big_Ground[idx] <- 1
-  } else {
-    df$Big_Ground[idx] <- 0
-  }
-}
-
-any(is.na(df)) # Check that there is no NA Values.
+df <- df[-c(28, 119, 115, 560, 727, 806, 66, 271, 493), ]
 
 test_df <- subset(df, Year == 2022)
 df <- subset(df, Year != 2022)
