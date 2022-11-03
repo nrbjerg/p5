@@ -57,6 +57,6 @@ df <- df[-c(28, 119, 115, 560, 727, 806, 66, 271, 493), ]
 test_df <- subset(df, Year == 2022)
 df <- subset(df, Year != 2022)
 
-save(df, file="training_alt.Rda")
-save(test_df, file="test_alt.Rda")
+save(df, file="training.Rda")
+save(test_df, file="test.Rda")
 
