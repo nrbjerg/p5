@@ -23,6 +23,7 @@ df$Municipality <- df$KommuneNavn
 drop <- c("Pris_Salg","Areal_Bolig", "Areal_Grund", "Ejd_AntalRum", "Salgsmaaned", "StorGrund", "Dist_skole", "Dist_raadhus", "Dist_Town_Hall", "KommuneNavn", "Velhavende", "Alder", "Dist_raadhus", "Dist_skole", "Sogn", "Afstemningsomraade", "Salgsaar", "Salgsmaaned_encoded")
 df = df[,!(names(df) %in% drop)]
 
+install.packages("stringr")
 library(stringr)
 
 # Convert the data point strings to english 
@@ -40,7 +41,6 @@ df$Voting_Area <- str_replace(df$Voting_Area, "Vest", "West")
 df$Voting_Area <- str_replace(df$Voting_Area, "Nord", "North")
 
 
-df$Month
 df$Month <- str_replace(df$Month, "Januar", "January")
 df$Month <- str_replace(df$Month, "Februar", "February")
 df$Month <- str_replace(df$Month, "Marts", "March")
