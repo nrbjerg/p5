@@ -2,22 +2,22 @@ df <- cityhomes # Shorthand from now on.
 
 # Adds fin trend, which is trend + 1/12 * month_number.
 df$Salgsmaaned_encoded <- as.numeric(factor(df$Salgsmaaned, levels = unique(df$Salgsmaaned), exclude = NULL))
-df$Fin_trend <- df$Trend +  1/12 * df$Salgsmaaned_encoded
+df$Fin_Trend <- df$Trend +  1/12 * df$Salgsmaaned_encoded
 
 # Convert column names to english
 df$Price <- df$Pris_Salg
 df$Rooms <- df$Ejd_AntalRum
 df$Year <- df$Salgsaar
 df$Month <- df$Salgsmaaned
-df$Ground_Areal <- df$Areal_Grund
-df$Home_Areal <- df$Areal_Bolig
+df$Ground_Area <- df$Areal_Grund
+df$Home_Area <- df$Areal_Bolig
 df$Big_Ground <- df$StorGrund
 df$Voting_Area <- df$Afstemningsomraade
 df$Distance_School <- df$Dist_skole
 df$Distance_City_Hall <- df$Dist_raadhus
 df$Age <- df$Alder
 df$Parish <- df$Sogn
-df$Walthy <- df$Velhavende
+df$Wealthy <- df$Velhavende
 df$Municipality <- df$KommuneNavn
 
 drop <- c("Pris_Salg","Areal_Bolig", "Areal_Grund", "Ejd_AntalRum", "Salgsmaaned", "StorGrund", "Dist_skole", "Dist_raadhus", "Dist_Town_Hall", "KommuneNavn", "Velhavende", "Alder", "Dist_raadhus", "Dist_skole", "Sogn", "Afstemningsomraade", "Salgsaar", "Salgsmaaned_encoded")
@@ -59,10 +59,10 @@ for (idx in c(28, 119, 115, 560, 727, 806)) {
 }
 
 # The ground area is missing: 66, 271, 493
-mean(df$Ground_Areal)
+mean(df$Ground_Area)
 for (idx in c(66, 271, 493)) {
-  df$Ground_Areal[idx] <- mean(df$Ground_Areal)
-  if (df$Ground_Areal[idx] > 1448) {
+  df$Ground_Area[idx] <- mean(df$Ground_Area)
+  if (df$Ground_Area[idx] > 1448) {
     df$Big_Ground[idx] <- 1
   } else {
     df$Big_Ground[idx] <- 0
@@ -74,6 +74,6 @@ any(is.na(df)) # Check that there is no NA Values.
 test_df <- subset(df, Year == 2022)
 df <- subset(df, Year != 2022)
 
-save(df, file="training.Rda")
-save(test_df, file="test.Rda")
+save(df, file="training_alt.Rda")
+save(test_df, file="test_alt.Rda")
 
