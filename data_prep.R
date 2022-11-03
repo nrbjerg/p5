@@ -70,3 +70,5 @@ for (idx in c(66, 271, 493)) {
 }
 
 any(is.na(df)) # Check that there is no NA Values.
+
+save(df, file="cityhomes.Rda")
