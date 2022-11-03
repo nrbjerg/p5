@@ -23,7 +23,7 @@ df$Municipality <- df$KommuneNavn
 drop <- c("Pris_Salg","Areal_Bolig", "Areal_Grund", "Ejd_AntalRum", "Salgsmaaned", "StorGrund", "Dist_skole", "Dist_raadhus", "Dist_Town_Hall", "KommuneNavn", "Velhavende", "Alder", "Dist_raadhus", "Dist_skole", "Sogn", "Afstemningsomraade", "Salgsaar", "Salgsmaaned_encoded")
 df = df[,!(names(df) %in% drop)]
 
-install.packages("stringr")
+#install.packages("stringr")
 library(stringr)
 
 # Convert the data point strings to english 
@@ -71,4 +71,9 @@ for (idx in c(66, 271, 493)) {
 
 any(is.na(df)) # Check that there is no NA Values.
 
-save(df, file="cityhomes.Rda")
+test_df <- subset(df, Year == 2022)
+df <- subset(df, Year != 2022)
+
+save(df, file="training.Rda")
+save(test_df, file="test.Rda")
+
