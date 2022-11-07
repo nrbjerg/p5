@@ -54,9 +54,21 @@ df$Month <- str_replace(df$Month, "Oktober", "October")
 
 df <- df[-c(28, 119, 115, 560, 727, 806, 66, 271, 493), ]
 
-test_df <- subset(df, Year == 2022)
-df <- subset(df, Year != 2022)
 
-save(df, file="training.Rda")
-save(test_df, file="test.Rda")
+# Adding columns by taking the natural logarithm
+
+df$ln_Price <- log(df$Price)
+df$ln_Home_Area <- log(df$Home_Area)
+df$ln_Ground_Area <- log(df$Ground_Area)
+
+
+# Saving
+
+test_df <- subset(df, Year == 2022)
+training_df <- subset(df, Year != 2022)
+
+save(cityhomes, file = "cityhomes.Rda")
+save(df, file = "data_frame.Rda")
+save(training_df, file = "training.Rda")
+save(test_df, file = "test.Rda")
 
