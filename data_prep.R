@@ -60,6 +60,10 @@ df <- df[-c(28, 119, 115, 560, 727, 806, 66, 271, 493), ]
 df$ln_Price <- log(df$Price)
 df$ln_Home_Area <- log(df$Home_Area)
 df$ln_Ground_Area <- log(df$Ground_Area)
+df$ln_Rooms <- log(df$Rooms)
+df$ln_Distance_School <- log(df$Distance_School)
+df$ln_Distance_City_Hall <- log(df$Distance_City_Hall)
+df$ln_Age <- log(df$Age)
 
 
 # Saving

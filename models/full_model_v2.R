@@ -2,7 +2,7 @@
 
 # The full model with all variables included except Trend, Year, Voting_Area, 
 # Parish, Month, Big_Ground.
-GLM_Full <- lm(data = df, Price ~ Rooms + Ground_Area + Home_Area + 
+GLM_Full <- lm(data = training_df, Price ~ Rooms + Ground_Area + Home_Area + 
                Distance_School + Distance_City_Hall + Age + Wealthy + 
                Municipality)
 summary(GLM_Full)
@@ -22,7 +22,7 @@ summary(GLM_Full)
 
 # Reduce the full model based on t-values in a conservative way, that is the 
 # above mentioned three variables.
-GLM_Reduced <- lm(data = df, Price ~ Rooms + Ground_Area + Home_Area + Wealthy + 
+GLM_Reduced <- lm(data = training_df, Price ~ Rooms + Ground_Area + Home_Area + Wealthy + 
                   Municipality)
 summary(GLM_Reduced)
 # plot(GLM_Reduced)
@@ -45,7 +45,7 @@ anova(GLM_Full, GLM_Reduced)
 ### Further Reduction with Ground_Area ###
 
 # A further reduction from the reduced model removing Ground_Area.
-GLM_Reduced_Further <- lm(data = df, Price ~ Rooms + Home_Area +
+GLM_Reduced_Further <- lm(data = training_df, Price ~ Rooms + Home_Area +
                           Wealthy + Municipality)
 summary(GLM_Reduced_Further)
 
@@ -67,9 +67,8 @@ anova(GLM_Reduced, GLM_Reduced_Further)
 
 # Basing a model of the reduced model, but now the logarithm has been taken of
 # the variables Price, Home_Area, and Ground_Area.
-GLM_Transform <- lm(data = df, ln_Price ~ Rooms + ln_Ground_Area + 
-                    ln_Home_Area + 
-                    Wealthy + Municipality)
+GLM_Transform <- lm(data = training_df, ln_Price ~ Rooms + ln_Ground_Area + 
+                    ln_Home_Area + Wealthy + Municipality)
 summary(GLM_Transform)
 # plot(GLM_Transform)
 
