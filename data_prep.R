@@ -63,7 +63,7 @@ df$ln_Ground_Area <- log(df$Ground_Area)
 df$ln_Rooms <- log(df$Rooms)
 df$ln_Distance_School <- log(df$Distance_School)
 df$ln_Distance_City_Hall <- log(df$Distance_City_Hall)
-df$ln_Age <- log(df$Age)
+df$ln_Age <- log(df$Age) # Beware of inf values
 
 
 # Saving
