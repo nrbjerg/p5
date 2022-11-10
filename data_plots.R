@@ -55,5 +55,16 @@ par(mfrow = c(1, 2))
 plot_data(wealthy_data, "Wealthy Data")
 plot_data(non_wealthy_data, "Non Wealthy Data")
 
+# Create plots of ground area plottet against home area
+par(mfrow = c(1, 2))
+plot(df$Ground_Area, df$Home_Area, xlab="Ground Area", ylab="Home Area")
+abline(coefficients(lm(Home_Area ~ Ground_Area, df)), col="red")
+plot(df$Ground_Area[-c(4, 118, 120)], df$Home_Area[-c(4, 118, 120)], xlab="Ground Area", ylab="Home Area")
+abline(coefficients(lm(Home_Area ~ Ground_Area, df[-c(4, 118, 120),])), col="red")
 
+par(mfrow = c(1, 2))
+plot(df$Home_Area, df$Rooms, xlab="Home Area", ylab="Number Of Rooms")
+abline(coefficients(lm(Rooms ~ Home_Area, df)), col="red")
+plot(df$Home_Area[-c(4, 8)], df$Rooms[-c(4, 8)], xlab="Home Area", ylab="Number Of Rooms")
+abline(coefficients(lm(Rooms ~ Home_Area, df[-c(4, 8),])), col="red")
 

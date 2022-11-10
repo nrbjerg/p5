@@ -52,7 +52,7 @@ df$Month <- str_replace(df$Month, "Oktober", "October")
 
 # Remove missing data points 
 
-df <- df[-c(28, 119, 115, 560, 727, 806, 66, 271, 493), ]
+df <- df[-c(28, 113, 115, 560, 727, 806, 66, 271, 493), ]
 
 
 # Adding columns by taking the natural logarithm
@@ -75,4 +75,22 @@ save(cityhomes, file = "cityhomes.Rda")
 save(df, file = "data_frame.Rda")
 save(training_df, file = "training.Rda")
 save(test_df, file = "test.Rda")
+
+# Finally compute the new indicies of the outliers 
+compute_new_index <- function(old_index) {
+  removed_indicies <- c(28, 113, 115, 560, 727, 806, 66, 271, 493)
+  count <- 0
+  for (removed_index in removed_indicies) {
+    if (old_index > removed_index) {
+       count <- count + 1
+    } else if (old_index == removed_index) {
+        print("Oh shit your index was removed.")
+        return()
+    }
+  }
+  print(old_index - count)
+}
+
+
+
 
