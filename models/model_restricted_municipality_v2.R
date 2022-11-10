@@ -29,6 +29,19 @@ GLM_Copenhagen_Reduced <- lm(data = df_copenhagen,
 summary(GLM_Copenhagen_Reduced)
 # plot(GLM_Copenhagen_Reduced)
 
+# Residual plot:
+res_Copenhagen <- resid(GLM_Copenhagen_Reduced)
+plot(fitted(GLM_Copenhagen_Reduced), res_Copenhagen,
+     xlab = "Fitted Values", ylab = "Residuals")
+abline(0,0)
+
+# Normal QQ-plot:
+qqnorm(res_Copenhagen, ylab = "Residuals")
+qqline(res_Copenhagen)
+
+# Smooth density plot:
+plot(density(res_Copenhagen))
+
 # The reduced model has almost the same R-squared values and F-statistic, which
 # is a great sign.
 
@@ -70,6 +83,19 @@ GLM_Aarhus_Reduced <- lm(data = df_aarhus,
 summary(GLM_Aarhus_Reduced)
 # plot(GLM_Aarhus_Reduced)
 
+# Residual plot:
+res_Aarhus <- resid(GLM_Aarhus_Reduced)
+plot(fitted(GLM_Aarhus_Reduced), res_Aarhus,
+     xlab = "Fitted Values", ylab = "Residuals")
+abline(0,0)
+
+# Normal QQ-plot:
+qqnorm(res_Aarhus, ylab = "Residuals")
+qqline(res_Aarhus)
+
+# Smooth density plot:
+plot(density(res_Aarhus))
+
 # The reduced model has almost the same R-squared values and F-statistic, which
 # is a great sign.
 
@@ -107,6 +133,19 @@ GLM_Odense_Reduced <- lm(data = df_odense,
                          Price ~ Ground_Area + Home_Area + Age + Wealthy)
 summary(GLM_Odense_Reduced)
 # plot(GLM_Odense_Reduced)
+
+# Residual plot:
+res_Odense <- resid(GLM_Odense_Reduced)
+plot(fitted(GLM_Odense_Reduced), res_Odense,
+     xlab = "Fitted Values", ylab = "Residuals")
+abline(0,0)
+
+# Normal QQ-plot:
+qqnorm(res_Odense, ylab = "Residuals")
+qqline(res_Odense)
+
+# Smooth density plot:
+plot(density(res_Odense))
 
 # The reduced model has almost the same R-squared values and F-statistic, which
 # is a great sign.
@@ -147,6 +186,19 @@ GLM_Aalborg_Reduced <- lm(data = df_aalborg,
                           Wealthy)
 summary(GLM_Aalborg_Reduced)
 # plot(GLM_Aalborg_Reduced)
+
+# Residual plot:
+res_Aalborg <- resid(GLM_Aalborg_Reduced)
+plot(fitted(GLM_Aalborg_Reduced), res_Aalborg,
+     xlab = "Fitted Values", ylab = "Residuals")
+abline(0,0)
+
+# Normal QQ-plot:
+qqnorm(res_Aalborg, ylab = "Residuals")
+qqline(res_Aalborg)
+
+# Smooth density plot:
+plot(density(res_Aalborg))
 
 # The reduced model has almost the same R-squared values and F-statistic, which
 # is a great sign.

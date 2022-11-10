@@ -8,6 +8,19 @@ GLM_Full <- lm(data = training_df, Price ~ Rooms + Ground_Area + Home_Area +
 summary(GLM_Full)
 # plot(GLM_Full)
 
+# Residual plot:
+res_full <- resid(GLM_Full)
+plot(fitted(GLM_Full), res_full,
+     xlab = "Fitted Values", ylab = "Residuals")
+abline(0,0)
+
+# Normal QQ-plot:
+qqnorm(res_full, ylab = "Residuals")
+qqline(res_full)
+
+# Smooth density plot:
+plot(density(res_full))
+
 # The R-squared values and F-test gives reasonable values, which is a good sign.
 
 # The following variables gives a high p-value from the t-test, hence we may 
@@ -26,6 +39,19 @@ GLM_Reduced <- lm(data = training_df, Price ~ Rooms + Ground_Area + Home_Area + 
                   Municipality)
 summary(GLM_Reduced)
 # plot(GLM_Reduced)
+
+# Residual plot:
+res_reduced <- resid(GLM_Reduced)
+plot(fitted(GLM_Reduced), res_reduced,
+     xlab = "Fitted Values", ylab = "Residuals")
+abline(0,0)
+
+# Normal QQ-plot:
+qqnorm(res_reduced, ylab = "Residuals")
+qqline(res_reduced)
+
+# Smooth density plot:
+plot(density(res_reduced))
 
 # The R-squared values and F-test gives approximatively the same values, which 
 # suggest that no accuracy is lost.
@@ -72,10 +98,78 @@ GLM_Transform <- lm(data = training_df, ln_Price ~ Rooms + ln_Ground_Area +
 summary(GLM_Transform)
 # plot(GLM_Transform)
 
+# Residual plot:
+res_transform <- resid(GLM_Transform)
+plot(fitted(GLM_Transform), res_transform,
+     xlab = "Fitted Values", ylab = "Residuals")
+abline(0,0)
+
+# Normal QQ-plot:
+qqnorm(res_transform, ylab = "Residuals")
+qqline(res_transform)
+
+# Smooth density plot:
+plot(density(res_transform))
+
 # The R-squared values are an improvement partly due to the smaller values, and
 # the F-test still shows that the model i significant. Also the t-test is good.
 
+
+# An alternative.
 GLM_Transform <- lm(data = training_df, ln_Price ~ Rooms + Ground_Area + 
                     Home_Area + Wealthy + Municipality)
 summary(GLM_Transform)
-plot(GLM_Transform)
+# plot(GLM_Transform)
+
+# Residual plot:
+res_transform <- resid(GLM_Transform)
+plot(fitted(GLM_Transform), res_transform,
+     xlab = "Fitted Values", ylab = "Residuals")
+abline(0,0)
+
+# Normal QQ-plot:
+qqnorm(res_transform, ylab = "Residuals")
+qqline(res_transform)
+
+# Smooth density plot:
+plot(density(res_transform))
+
+
+
+
+
+rm(res_full, res_reduced, res_transform, GLM_Full, GLM_Reduced_Further)
+library(dplyr)
+
+### Prediction of the Sales in 2022 ###
+
+# Creating predictions of the data in 2022 based on the transformed model.
+pred_confint = predict(GLM_Transform, test_df, interval = 'confidence')
+pred_confint = as.data.frame(pred_confint)
+
+# Adding the predictions and associated confidence interval to the test data 
+# frame.
+test_df$Fitted <- pred_confint$fit
+test_df$Lower_Bound_Confint <- pred_confint$lwr
+test_df$Upper_Bound_Confint <- pred_confint$upr
+
+# Creating prediction interval for the above predictions.
+predint = predict(GLM_Transform, test_df, interval = 'prediction')
+predint = as.data.frame(predint)
+
+# Adding the prediction interval to the test data frame.
+test_df$Lower_Bound_Predint <- predint$lwr
+test_df$Upper_Bound_Predint <- predint$upr
+
+# Arrange the data frame the Price variable.
+test_df = arrange(test_df, Price)
+
+# Plotting a scatter plot of prediction against ln_Price with confidence and
+# prediction intervals.
+plot(data = test_df, 
+     Fitted ~ ln_Price)
+abline(0,1)
+lines(test_df$ln_Price, test_df$Lower_Bound_Confint, col = "Blue")
+lines(test_df$ln_Price, test_df$Upper_Bound_Confint, col = "Blue")
+lines(test_df$ln_Price, test_df$Lower_Bound_Predint, col = "Red")
+lines(test_df$ln_Price, test_df$Upper_Bound_Predint, col = "Red")
