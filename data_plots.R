@@ -1,5 +1,3 @@
-library("ggplot2")
-
 create_dataset <- function (subcriteria) { # Subcriteria, is a function allowing us to specify if we want to get wealthy or not, or we might not even care
   prices <- c()
   cities <- c()
@@ -17,13 +15,45 @@ create_dataset <- function (subcriteria) { # Subcriteria, is a function allowing
   return(data.frame(Mean_Prices = prices, Municipality=cities, Trend = trends))
 }
 
+color_palette <- function (municipality) {
+  if (municipality == "Copenhagen") {
+    return("red")
+  }
+  if (municipality == "Aarhus") {
+    return("blue")
+  }
+  if (municipality == "Odense") {
+    return("green")
+  }
+  if (municipality == "Aalborg") {
+    return("purple")  
+  }
+  return("black")
+}
+
+vector_color_palette <- Vectorize(color_palette)
+
+plot_data <- function(df, title) {
+  municipalities = unique(df$Municipality)
+  plot(df$Trend, df$Mean_Prices, col = vector_color_palette(df$Municipality), xlab="Trend", ylab="Mean Prices", main=title, pch=16)
+  legend(x="topleft", legend=municipalities, col=vector_color_palette(municipalities), lty=rep(1, 5), cex=1)
+  for (municipality in municipalities) {
+    indicies = df$Municipality == municipality
+    lines(df$Trend[indicies], df$Mean_Prices[indicies], col = color_palette(municipality), type="l")      
+  }
+}
+
 general_data <- create_dataset(function(df) {return(rep(TRUE, length(df$Trend)))})
 wealthy_data <- create_dataset(function(df) {return(df$Walthy == 1)})
 non_wealthy_data <- create_dataset(function(df) {return(df$Walthy == 0)})
 
-# TODO: Use a different color pallate.
-ggplot(general_data, aes(x=Trend, y=Mean_Prices)) + 
-  scale_fill_brewer(palette="Set1")+
-  geom_line(aes(colour=Municipality)) + 
-  geom_point(aes(colour=Municipality)) 
+par(mfrow = c(1, 1))
+plot_data(general_data, "")
+
+par(mfrow = c(1, 2))
+
+plot_data(wealthy_data, "Wealthy Data")
+plot_data(non_wealthy_data, "Non Wealthy Data")
+
+
 
