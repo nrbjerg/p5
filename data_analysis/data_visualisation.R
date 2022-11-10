@@ -170,7 +170,11 @@ boxplot(data = df, Price ~ Month,
 ### Distance Information ###
 
 # Comparison of Distance_School and Distance_City_Hall:
-plot(data = df, Distance_School ~ Distance_City_Hall)
+plot(data = df, Distance_School ~ Distance_City_Hall,
+     xlab = "Distance to City Hall", ylab = "Distance to School")
+LM = lm(data = df,
+        Distance_School ~ Distance_City_Hall)
+abline(LM, col = "red"); summary(LM)
 
 # No trend is seen. Calculate the correlation:
 cor(df$Distance_School, df$Distance_City_Hall)
@@ -180,8 +184,8 @@ cor(df$Distance_School, df$Price)
 
 # Plots:
 plot(data = df, Price ~ Distance_School,
-     xlab = "Price", ylab = "Distance School")
-LM = lm(data = df_subset,
+     xlab = "Distance School", ylab = "Price")
+LM = lm(data = df,
         Price ~ Distance_School)
 abline(LM, col = "red"); summary(LM)
 
@@ -194,8 +198,8 @@ cor(df$Distance_City_Hall, df$Price)
 
 # Plots:
 plot(data = df, Price ~ Distance_City_Hall,
-     xlab = "Price", ylab = "Distance City Hall")
-LM = lm(data = df_subset,
+     xlab = "Distance City Hall", ylab = "Price")
+LM = lm(data = df,
         Price ~ Distance_City_Hall)
 abline(LM, col = "red"); summary(LM)
 

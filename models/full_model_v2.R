@@ -74,3 +74,8 @@ summary(GLM_Transform)
 
 # The R-squared values are an improvement partly due to the smaller values, and
 # the F-test still shows that the model i significant. Also the t-test is good.
+
+GLM_Transform <- lm(data = training_df, ln_Price ~ Rooms + Ground_Area + 
+                    Home_Area + Wealthy + Municipality)
+summary(GLM_Transform)
+plot(GLM_Transform)
