@@ -141,7 +141,99 @@ plot(density(res_transform))
 rm(res_full, res_reduced, res_transform, GLM_Full, GLM_Reduced_Further)
 library(dplyr)
 
-### Prediction of the Sales in 2022 ###
+### Prediction of the Sales with the Reduced Model ###
+
+# Creating predictions of the general data frame based on the reduced model.
+pred_confint = predict(GLM_Reduced, df, interval = 'confidence')
+pred_confint = as.data.frame(pred_confint)
+
+# Adding the predictions and associated confidence interval to the test data 
+# frame.
+df$Fitted <- pred_confint$fit
+df$Lower_Bound_Confint <- pred_confint$lwr
+df$Upper_Bound_Confint <- pred_confint$upr
+
+# Creating prediction interval for the above predictions.
+predint = predict(GLM_Reduced, df, interval = 'prediction')
+predint = as.data.frame(predint)
+
+# Adding the prediction interval to the test data frame.
+df$Lower_Bound_Predint <- predint$lwr
+df$Upper_Bound_Predint <- predint$upr
+
+# Arrange the data frame the Price variable.
+df = arrange(df, Price)
+
+# Plotting a scatter plot of prediction against Price with confidence and
+# prediction intervals.
+plot(data = df, 
+     Fitted ~ Price)
+abline(0,1)
+lines(df$Price, df$Lower_Bound_Confint, col = "Blue")
+lines(df$Price, df$Upper_Bound_Confint, col = "Blue")
+lines(df$Price, df$Lower_Bound_Predint, col = "Red")
+lines(df$Price, df$Upper_Bound_Predint, col = "Red")
+
+# Plotting a scatter plot of prediction against ln_Price with confidence and
+# prediction intervals.
+plot(data = df, 
+     Fitted ~ ln_Price)
+abline(0,1)
+lines(df$ln_Price, df$Lower_Bound_Confint, col = "Blue")
+lines(df$ln_Price, df$Upper_Bound_Confint, col = "Blue")
+lines(df$ln_Price, df$Lower_Bound_Predint, col = "Red")
+lines(df$ln_Price, df$Upper_Bound_Predint, col = "Red")
+
+# Plotting the 
+df = arrange(df, Fitted)
+df$Index = 1:863
+
+plot(data = df, Price ~ Index)
+abline(0,1)
+lines(df$Index, df$Fitted, col = "Green", lwd = 1.5)
+lines(df$Index, df$Lower_Bound_Confint, col = "Blue", lwd = 1.5)
+lines(df$Index, df$Upper_Bound_Confint, col = "Blue", lwd = 1.5)
+lines(df$Index, df$Lower_Bound_Predint, col = "Red", lwd = 1.5)
+lines(df$Index, df$Upper_Bound_Predint, col = "Red", lwd = 1.5)
+
+
+
+### Prediction of the Sales with the Transformed Model ###
+
+# Creating predictions of the general data frame based on the transformed model.
+pred_confint = predict(GLM_Transform, df, interval = 'confidence')
+pred_confint = as.data.frame(pred_confint)
+
+# Adding the predictions and associated confidence interval to the test data 
+# frame.
+df$Fitted <- pred_confint$fit
+df$Lower_Bound_Confint <- pred_confint$lwr
+df$Upper_Bound_Confint <- pred_confint$upr
+
+# Creating prediction interval for the above predictions.
+predint = predict(GLM_Transform, df, interval = 'prediction')
+predint = as.data.frame(predint)
+
+# Adding the prediction interval to the test data frame.
+df$Lower_Bound_Predint <- predint$lwr
+df$Upper_Bound_Predint <- predint$upr
+
+# Arrange the data frame the Price variable.
+df = arrange(df, Price)
+
+# Plotting a scatter plot of prediction against ln_Price with confidence and
+# prediction intervals.
+plot(data = df, 
+     Fitted ~ ln_Price)
+abline(0,1)
+lines(df$ln_Price, df$Lower_Bound_Confint, col = "Blue")
+lines(df$ln_Price, df$Upper_Bound_Confint, col = "Blue")
+lines(df$ln_Price, df$Lower_Bound_Predint, col = "Red")
+lines(df$ln_Price, df$Upper_Bound_Predint, col = "Red")
+
+
+
+### Prediction of the Sales  with the Transformed Model in 2022 ###
 
 # Creating predictions of the data in 2022 based on the transformed model.
 pred_confint = predict(GLM_Transform, test_df, interval = 'confidence')
