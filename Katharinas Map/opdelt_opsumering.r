@@ -1,4 +1,4 @@
-#load(cityhomes.Rda)
+#load(cityhomes.Rda) hej
 CH <- cityhomes
 ch <- na.omit(CH)
 
