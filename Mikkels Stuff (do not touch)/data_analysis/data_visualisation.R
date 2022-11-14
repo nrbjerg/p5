@@ -217,6 +217,13 @@ plot(data = df_subset, Home_Area ~ Distance_City_Hall)
 
 # No relation seems likely.
 
+par(mfrow = c(1, 2))
+boxplot(data = df, Distance_School ~ Wealthy,
+        xlab = "Wealthy", ylab = "Distance School")
+boxplot(data = df, Distance_City_Hall ~ Wealthy,
+        xlab = "Wealthy", ylab = "Distance City Hall")
+
+
 
 
 

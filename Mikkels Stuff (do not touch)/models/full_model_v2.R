@@ -161,40 +161,95 @@ predint = as.data.frame(predint)
 df$Lower_Bound_Predint <- predint$lwr
 df$Upper_Bound_Predint <- predint$upr
 
-# Arrange the data frame the Price variable.
-df = arrange(df, Price)
-
-# Plotting a scatter plot of prediction against Price with confidence and
-# prediction intervals.
-plot(data = df, 
-     Fitted ~ Price)
-abline(0,1)
-lines(df$Price, df$Lower_Bound_Confint, col = "Blue")
-lines(df$Price, df$Upper_Bound_Confint, col = "Blue")
-lines(df$Price, df$Lower_Bound_Predint, col = "Red")
-lines(df$Price, df$Upper_Bound_Predint, col = "Red")
-
-# Plotting a scatter plot of prediction against ln_Price with confidence and
-# prediction intervals.
-plot(data = df, 
-     Fitted ~ ln_Price)
-abline(0,1)
-lines(df$ln_Price, df$Lower_Bound_Confint, col = "Blue")
-lines(df$ln_Price, df$Upper_Bound_Confint, col = "Blue")
-lines(df$ln_Price, df$Lower_Bound_Predint, col = "Red")
-lines(df$ln_Price, df$Upper_Bound_Predint, col = "Red")
-
-# Plotting the 
+# Arrange the data frame by the Fitted variable.
 df = arrange(df, Fitted)
 df$Index = 1:863
 
+# Plotting the confidence and prediction intervals against index.
 plot(data = df, Price ~ Index)
-abline(0,1)
-lines(df$Index, df$Fitted, col = "Green", lwd = 1.5)
-lines(df$Index, df$Lower_Bound_Confint, col = "Blue", lwd = 1.5)
-lines(df$Index, df$Upper_Bound_Confint, col = "Blue", lwd = 1.5)
-lines(df$Index, df$Lower_Bound_Predint, col = "Red", lwd = 1.5)
-lines(df$Index, df$Upper_Bound_Predint, col = "Red", lwd = 1.5)
+lines(df$Index, df$Fitted, col = "Red", lwd = 1.5)
+lines(df$Index, df$Lower_Bound_Confint, col = "Green", lwd = 1.5)
+lines(df$Index, df$Upper_Bound_Confint, col = "Green", lwd = 1.5)
+lines(df$Index, df$Lower_Bound_Predint, col = "Blue", lwd = 1.5)
+lines(df$Index, df$Upper_Bound_Predint, col = "Blue", lwd = 1.5)
+
+# Plotting the confidence and prediction intervals against fitted values.
+plot(data = df, Price ~ Fitted)
+lines(df$Fitted, df$Fitted, col = "Red", lwd = 1.5)
+lines(df$Fitted, df$Lower_Bound_Confint, col = "Green", lwd = 1.5)
+lines(df$Fitted, df$Upper_Bound_Confint, col = "Green", lwd = 1.5)
+lines(df$Fitted, df$Lower_Bound_Predint, col = "Blue", lwd = 1.5)
+lines(df$Fitted, df$Upper_Bound_Predint, col = "Blue", lwd = 1.5)
+
+# Counting the number of Datapoints inside the prediction interval.
+count_inside_prediction = 0
+
+for (i in df$Index)
+  {if (df$Lower_Bound_Predint[i] <= df$Price[i] && df$Price[i] <= df$Upper_Bound_Predint[i]) {
+  count_inside_prediction = count_inside_prediction + 1
+} else {
+  0
+}}
+
+count_inside_prediction/863
+
+
+
+
+
+### Prediction of the Sales in 2022 with the Reduced Model ###
+
+# Creating predictions of the general data frame based on the reduced model.
+pred_confint = predict(GLM_Reduced, test_df, interval = 'confidence')
+pred_confint = as.data.frame(pred_confint)
+
+# Adding the predictions and associated confidence interval to the test data 
+# frame.
+test_df$Fitted <- pred_confint$fit
+test_df$Lower_Bound_Confint <- pred_confint$lwr
+test_df$Upper_Bound_Confint <- pred_confint$upr
+
+# Creating prediction interval for the above predictions.
+predint = predict(GLM_Reduced, test_df, interval = 'prediction')
+predint = as.data.frame(predint)
+
+# Adding the prediction interval to the test data frame.
+test_df$Lower_Bound_Predint <- predint$lwr
+test_df$Upper_Bound_Predint <- predint$upr
+
+# Arrange the data frame by the Fitted variable.
+test_df = arrange(test_df, Fitted)
+test_df$Index = 1:43
+
+# Plotting the confidence and prediction intervals against index.
+plot(data = df, Price ~ Index)
+lines(df$Index, df$Fitted, col = "Red", lwd = 1.5)
+lines(df$Index, df$Lower_Bound_Confint, col = "Green", lwd = 1.5)
+lines(df$Index, df$Upper_Bound_Confint, col = "Green", lwd = 1.5)
+lines(df$Index, df$Lower_Bound_Predint, col = "Blue", lwd = 1.5)
+lines(df$Index, df$Upper_Bound_Predint, col = "Blue", lwd = 1.5)
+
+# Plotting the confidence and prediction intervals against fitted values.
+plot(data = df, Price ~ Fitted)
+lines(df$Fitted, df$Fitted, col = "Red", lwd = 1.5)
+lines(df$Fitted, df$Lower_Bound_Confint, col = "Green", lwd = 1.5)
+lines(df$Fitted, df$Upper_Bound_Confint, col = "Green", lwd = 1.5)
+lines(df$Fitted, df$Lower_Bound_Predint, col = "Blue", lwd = 1.5)
+lines(df$Fitted, df$Upper_Bound_Predint, col = "Blue", lwd = 1.5)
+
+# Counting the number of Datapoints inside the prediction interval.
+count_inside_prediction = 0
+
+for (i in test_df$Index)
+{if (test_df$Lower_Bound_Predint[i] <= test_df$Price[i] && test_df$Price[i] <= test_df$Upper_Bound_Predint[i]) {
+  count_inside_prediction = count_inside_prediction + 1
+} else {
+  0
+}}
+
+count_inside_prediction/43
+
+
 
 
 
@@ -218,18 +273,39 @@ predint = as.data.frame(predint)
 df$Lower_Bound_Predint <- predint$lwr
 df$Upper_Bound_Predint <- predint$upr
 
-# Arrange the data frame the Price variable.
-df = arrange(df, Price)
+# Arrange the data frame by the Fitted variable.
+df = arrange(df, Fitted)
+df$Index = 1:863
 
-# Plotting a scatter plot of prediction against ln_Price with confidence and
-# prediction intervals.
-plot(data = df, 
-     Fitted ~ ln_Price)
-abline(0,1)
-lines(df$ln_Price, df$Lower_Bound_Confint, col = "Blue")
-lines(df$ln_Price, df$Upper_Bound_Confint, col = "Blue")
-lines(df$ln_Price, df$Lower_Bound_Predint, col = "Red")
-lines(df$ln_Price, df$Upper_Bound_Predint, col = "Red")
+# Plotting the confidence and prediction intervals against index.
+plot(data = df, ln_Price ~ Index)
+lines(df$Index, df$Fitted, col = "Red", lwd = 1.5)
+lines(df$Index, df$Lower_Bound_Confint, col = "Green", lwd = 1.5)
+lines(df$Index, df$Upper_Bound_Confint, col = "Green", lwd = 1.5)
+lines(df$Index, df$Lower_Bound_Predint, col = "Blue", lwd = 1.5)
+lines(df$Index, df$Upper_Bound_Predint, col = "Blue", lwd = 1.5)
+
+# Plotting the confidence and prediction intervals against Fitted.
+plot(data = df, ln_Price ~ Fitted)
+lines(df$Fitted, df$Fitted, col = "Red")
+lines(df$Fitted, df$Lower_Bound_Confint, col = "Green")
+lines(df$Fitted, df$Upper_Bound_Confint, col = "Green")
+lines(df$Fitted, df$Lower_Bound_Predint, col = "Blue")
+lines(df$Fitted, df$Upper_Bound_Predint, col = "Blue")
+
+# Counting the number of Datapoints inside the prediction interval.
+count_inside_prediction = 0
+
+for (i in df$Index)
+{if (df$Lower_Bound_Predint[i] <= df$ln_Price[i] && df$ln_Price[i] <= df$Upper_Bound_Predint[i]) {
+  count_inside_prediction = count_inside_prediction + 1
+} else {
+  0
+}}
+
+count_inside_prediction/863
+
+
 
 
 
@@ -253,15 +329,34 @@ predint = as.data.frame(predint)
 test_df$Lower_Bound_Predint <- predint$lwr
 test_df$Upper_Bound_Predint <- predint$upr
 
-# Arrange the data frame the Price variable.
-test_df = arrange(test_df, Price)
+# Arrange the data frame by the Fitted variable.
+test_df = arrange(test_df, Fitted)
+test_df$Index = 1:43
 
-# Plotting a scatter plot of prediction against ln_Price with confidence and
-# prediction intervals.
-plot(data = test_df, 
-     Fitted ~ ln_Price)
-abline(0,1)
-lines(test_df$ln_Price, test_df$Lower_Bound_Confint, col = "Blue")
-lines(test_df$ln_Price, test_df$Upper_Bound_Confint, col = "Blue")
-lines(test_df$ln_Price, test_df$Lower_Bound_Predint, col = "Red")
-lines(test_df$ln_Price, test_df$Upper_Bound_Predint, col = "Red")
+# Plotting the confidence and prediction intervals against index.
+plot(data = test_df, ln_Price ~ Index)
+lines(test_df$Index, test_df$Fitted, col = "Red", lwd = 1.5)
+lines(test_df$Index, test_df$Lower_Bound_Confint, col = "Green", lwd = 1.5)
+lines(test_df$Index, test_df$Upper_Bound_Confint, col = "Green", lwd = 1.5)
+lines(test_df$Index, test_df$Lower_Bound_Predint, col = "Blue", lwd = 1.5)
+lines(test_df$Index, test_df$Upper_Bound_Predint, col = "Blue", lwd = 1.5)
+
+# Plotting the confidence and prediction intervals against Fitted.
+plot(data = test_df, ln_Price ~ Fitted)
+lines(test_df$Fitted, test_df$Fitted, col = "Red")
+lines(test_df$Fitted, test_df$Lower_Bound_Confint, col = "Green")
+lines(test_df$Fitted, test_df$Upper_Bound_Confint, col = "Green")
+lines(test_df$Fitted, test_df$Lower_Bound_Predint, col = "Blue")
+lines(test_df$Fitted, test_df$Upper_Bound_Predint, col = "Blue")
+
+# Counting the number of Datapoints inside the prediction interval.
+count_inside_prediction = 0
+
+for (i in test_df$Index)
+{if (test_df$Lower_Bound_Predint[i] <= test_df$ln_Price[i] && test_df$ln_Price[i] <= test_df$Upper_Bound_Predint[i]) {
+  count_inside_prediction = count_inside_prediction + 1
+} else {
+  0
+}}
+
+count_inside_prediction/43
