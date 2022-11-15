@@ -76,21 +76,20 @@ save(df, file = "data_frame.Rda")
 save(training_df, file = "training.Rda")
 save(test_df, file = "test.Rda")
 
-# Finally compute the new indicies of the outliers 
-compute_new_index <- function(old_index) {
-  removed_indicies <- c(28, 113, 115, 560, 727, 806, 66, 271, 493)
-  count <- 0
-  for (removed_index in removed_indicies) {
-    if (old_index > removed_index) {
-       count <- count + 1
-    } else if (old_index == removed_index) {
-        print("Oh shit your index was removed.")
-        return()
+
+# Finally the following function allows us to compute the new indicies
+compute_new_index <- function (old_index, original_df, new_df) { 
+  # For this to work, new_df must be a subset of the orginal df.
+  old_row <- original_df[old_index, ]
+  for (row_index in 1:nrow(new_df)) {
+    if (old_row == new_df[row_index, ]) {
+      return(row_index)
     }
   }
-  print(old_index - count)
+  return("Couldn't find any matches.")
 }
 
-
-
+# Test:
+compute_new_index(2, data.frame(X=c(1, 2, 3), Y=c(2, 3, 4)), data.frame(X=c(2, 3), Y=c(3,4))) 
+# Output: 1 as expected.
 
