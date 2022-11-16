@@ -1,7 +1,8 @@
+old_df <- df
 require("purrr")
 require("faraway")
 require("Hmisc")
-
+df <- old_df 
 # Modeling with corona
 df$Corona <- unlist(map(df$Year, function(year) {
   if (year == 2020 ) { # Corona went into affect in 2020
@@ -10,29 +11,95 @@ df$Corona <- unlist(map(df$Year, function(year) {
     return(0)
   }
 }))
-mod <- lm(data = df,ln_Price ~ Rooms + Ground_Area + 
+
+add_corona <- function (df) {
+  df$Corona <- unlist(map(df$Year, function(year) {
+    if (year == 2020 ) { # Corona went into affect in 2020
+      return(1)
+    } else {
+      return(0)
+    }
+  }))
+  return(df)
+}
+
+df <- add_corona(df)
+# We start by reducing 
+full <- lm(data = df,ln_Price ~ Rooms + Ground_Area + 
+                    Home_Area + Distance_School + Distance_City_Hall +
+                    Age + Wealthy + Municipality + Corona + Trend)
+summary(full) 
+plot(full) 
+
+# Removing outliers.
+df <- df[-c(4, compute_new_index(8, cityhomes, df))] # 8 becomes 7
+
+full <- lm(data = df,ln_Price ~ Rooms + Ground_Area + 
+                    Home_Area + Distance_School + Distance_City_Hall +
+                    Age + Wealthy + Municipality + Corona + Trend)
+summary(full) 
+plot(full)
+max(hatvalues(full))
+
+# We see that we may remove Distance_School & Distance_City_Hall
+
+reduced <- lm(data = df,ln_Price ~ Rooms + Ground_Area + 
                     Home_Area + Wealthy + Municipality + Corona + Trend)
-summary(mod)
+summary(reduced) 
 
-# Variance inflation factors (1 means no colinearity, 1-5 means little colinearity, 5+ reconsider the model.)
-vif(mod)
-# Rooms                  ln_Ground_Area            ln_Home_Area           Wealthy 
-# 2.223377               1.678412                  2.328144               1.299075 
+anova(reduced, full) 
+# We get a p value of 0.00027 => we aren't able to remove both terms
+
+# Checking if we can remove each term one by one.
+
+# Removing Distance_City_Hall
+reduced_2 <- lm(data = df,ln_Price ~ Rooms + Ground_Area + 
+                    Home_Area + Distance_School +
+                    Age + Wealthy + Municipality + Corona + Trend)
+summary(reduced_2) # Can not reduce further 
+anova(reduced_2, full) # p value of 0.11 => we can remove the term
+
+# Removing Distance_School
+reduced_3 <- lm(data = df,ln_Price ~ Rooms + Ground_Area + 
+                    Home_Area + Distance_City_Hall +
+                    Age + Wealthy + Municipality + Corona + Trend)
+summary(reduced_3) 
+# p values indicate that we may remove Distance_City_Hall,
+# however we tried this earlier (didn't work)
+anova(reduced_3, full) # p value of 0.07 => we can remove the term
+
+summary(reduced_2)$adj.r.squared; summary(reduced_3)$adj.r.squared
+# We see that the model where we removed Distance_City_Hall performs better.
+
+plot(df$Home_Area, residuals(reduced_2))
+# We will now check for colinarity using "variance of inflation" and "condition numbers"
+
+# Variance of Inflation Factors.
+# 1 means no colinearity, 1-5 means little colinearity, 5+ reconsider the model.
+vif(reduced_2)
+
+
+1 / (1 - summary(lm(Rooms ~ Ground_Area + Home_Area + Distance_School + Age + Wealthy + Municipality + Corona + Trend, data=df))$r.squared)
+# Output: please note that we have removed the prepended municipality for demonstration purposes
+# Rooms                  Ground_Area            Home_Area 
+# 1.913791               1.172526               1.851480 
 # 
-# MunicipalityAarhus     MunicipalityCopenhagen    MunicipalityOdense     Trend 
-# 1.345726               1.679809                  1.395269               1.162285 
+# Distance_School        Age                    Wealthy 
+# 1.454920               1.279836               1.323772 
 #
-# Corona 
-# 1.130922 
+# Aarhus                 Copenhagen             Odense 
+# 1.368772               1.470851               1.806908 
+#
+# Corona                 Trend 
+# 1.133202               1.154540 
+# Conclusion: This does not seem to be that bad.
 
-# Checking conditon numbers (High values are considered evidence that we have colinarity (we want them less than 30))
-X <- model.matrix(mod) # Code from vytaute
+
+# Condition Numbers (we want them less than 30)
+X <- model.matrix(reduced_2) # Code from vytaute
 X <- scale(X, center = FALSE, scale = sqrt(colSums(X^2)))
 e <- eigen(t(X) %*% X)$values
 sqrt(max(e)/e)
-# Output for mod without corona and trend:  1.00 2.40 2.43 2.60 3.90 4.47 5.45 6.95 10.84 13.86
-# Output for mod with corona and trend:     1.00 2.20 2.24 3.57 4.11 5.75 8.84 12.6
-
-# Other options
-library(olsrr)
-ols_eigen_cindex(mod)
+# Output:
+#  [1]  1.00  2.63  2.69  2.91  4.30  5.01
+#  [7]  5.76  6.36  7.70  8.09 14.49 16.75
