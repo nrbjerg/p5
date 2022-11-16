@@ -1,3 +1,4 @@
+cityhomes$index <- 1:872
 df <- cityhomes # Shorthand from now on.
 
 # Adds fin trend, which is trend + 1/12 * month_number.
