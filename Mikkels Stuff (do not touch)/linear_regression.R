@@ -53,12 +53,27 @@ plot(mod_reduced, which = 6, caption = "", sub.caption = "")
 # normal distribution. Thus something does not satisfy the assumptions of
 # general linear models.
 
-# The problematic values are:
-training_df[c(4, 8, 17, 28, 29),]
+# Outliers from the leverages.
+leverages <- hatvalues(mod_reduced)
 
+for (i in 1:820){
+  if (leverages[i] > 3*8/820){
+    print(i)
+  }
+}
+
+# Outliers from the Cook's distances.
+cooks_distance <- cooks.distance(mod_reduced)
+
+for (i in 1:820){
+  if (cooks_distance[i] >= 0.5){
+    print(i)
+  }
+}
 
 # Clean
 rm(mod_full, mod_reduced)
+rm(leverages, cooks_distance, i)
 
 
 
@@ -113,10 +128,38 @@ plot(ln_mod_reduced, which = 6, caption = "", sub.caption = "")
 
 # The residual plot and other plots have improved monumentally.
 
-# The problematic values are:
-training_df[c(4, 8, 116, 505, 545),]
+# Outliers from the residuals.
+residuals <- resid(ln_mod_reduced)
 
-training_df_no_outliers = training_df[-c(4, 8, 116, 505, 545),]
+for (i in 1:820){
+  if (abs(residuals[i]) > 1){
+    print(i)
+  }
+}
+
+# Outliers from the leverages.
+leverages <- hatvalues(ln_mod_reduced)
+
+for (i in 1:820){
+  if (leverages[i] > 3*10/820){
+    print(i)
+  }
+}
+
+# Outliers from the Cook's distances.
+cooks_distance <- cooks.distance(ln_mod_reduced)
+
+for (i in 1:820){
+  if (cooks_distance[i] >= 0.5){
+    print(i)
+  }
+}
+
+# The outliers are analysed. The point 
+training_df[c(2, 4, 8, 17, 19, 29, 77, 116, 255, 471, 486, 545),]
+
+training_df_no_outliers = training_df[-c(2, 4, 8, 17, 19, 29, 77, 116, 255, 471, 
+                                         486, 545),]
 
 ln_mod_reduced_no_outliers <- lm(data = training_df_no_outliers, 
                                  ln_Price ~ Rooms + Ground_Area + Home_Area + 
@@ -143,6 +186,33 @@ plot(ln_mod_further_reduced_no_outliers, which = 2, caption = "", sub.caption = 
 # plot(ln_mod_further_reduced_no_outliers, which = 4, caption = "", sub.caption = "")
 plot(ln_mod_further_reduced_no_outliers, which = 5, caption = "", sub.caption = "")
 plot(ln_mod_further_reduced_no_outliers, which = 6, caption = "", sub.caption = "")
+
+# Outliers from the residuals.
+residuals <- resid(ln_mod_reduced_no_outliers)
+
+for (i in 1:802){
+  if (abs(residuals[i]) > 1){
+    print(i)
+  }
+}
+
+# Outliers from the leverages.
+leverages <- hatvalues(ln_mod_reduced_no_outliers)
+
+for (i in 1:802){
+  if (leverages[i] > 3*7/802){
+    print(i)
+  }
+}
+
+# Outliers from the Cook's distances.
+cooks_distance <- cooks.distance(ln_mod_reduced_no_outliers)
+
+for (i in 1:802){
+  if (cooks_distance[i] >= 0.5){
+    print(i)
+  }
+}
 
 
 
@@ -187,7 +257,7 @@ lines(training_df_no_outliers_arranged$Fitted, training_df_no_outliers_arranged$
 # Counting the number of data points inside the prediction interval.
 count_inside_prediction = 0
 
-for (i in 1:814)
+for (i in 1:802)
 {if (training_df_no_outliers_arranged$Lower_Bound_Predint[i] <= training_df_no_outliers_arranged$ln_Price[i] 
      && training_df_no_outliers_arranged$ln_Price[i] <= training_df_no_outliers_arranged$Upper_Bound_Predint[i]) {
   count_inside_prediction = count_inside_prediction + 1
@@ -264,5 +334,5 @@ count_bigger_than_prediction / 43
 rm(ln_mod_full, ln_mod_reduced, ln_mod_reduced_no_outliers, 
    ln_mod_further_reduced_no_outliers)
 rm(training_df_no_outliers, training_df_no_outliers_arranged, test_df_arranged)
-rm(pred_confint, predint, count_inside_prediction, count_bigger_than_prediction, i)
+rm(leverages, cooks_distance, residuals, pred_confint, predint, count_inside_prediction, count_bigger_than_prediction, i)
 

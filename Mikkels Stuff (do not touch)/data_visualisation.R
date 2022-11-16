@@ -59,6 +59,11 @@ mean(df$Price[df$Municipality == 'Aalborg'])
 
 ### Size Information ###
 
+# First a density plot of Ground_Area, Home_Area, and Rooms:
+plot(density(df$Ground_Area))
+plot(density(df$Home_Area))
+plot(density(df$Rooms))
+
 # Comparison of Ground_Area and Big_Ground:
 plot(data = df, Big_Ground ~ Ground_Area)
 cor(df$Big_Ground, df$Ground_Area)
@@ -229,4 +234,5 @@ boxplot(data = df, Distance_City_Hall ~ Wealthy,
 
 
 # Cleaning
-rm(list=ls())
+rm(LM, df_subset)
+# rm(list=ls())
