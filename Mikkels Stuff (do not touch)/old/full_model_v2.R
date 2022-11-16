@@ -2,24 +2,37 @@
 
 # The full model with all variables included except Trend, Year, Voting_Area, 
 # Parish, Month, Big_Ground.
-GLM_Full <- lm(data = training_df, Price ~ Rooms + Ground_Area + Home_Area + 
+GLM_Full = lm(data = training_df, Price ~ Rooms + Ground_Area + Home_Area + 
                Distance_School + Distance_City_Hall + Age + Wealthy + 
                Municipality)
 summary(GLM_Full)
-# plot(GLM_Full)
+
+plot(GLM_Full, which = 1, caption = "", sub.caption = "")
+plot(GLM_Full, which = 2, caption = "", sub.caption = "")
+plot(GLM_Full, which = 3, caption = "", sub.caption = "")
+plot(GLM_Full, which = 4, caption = "", sub.caption = "")
+plot(GLM_Full, which = 5, caption = "", sub.caption = "")
+plot(GLM_Full, which = 6, caption = "", sub.caption = "")
 
 # Residual plot:
-res_full <- resid(GLM_Full)
-plot(fitted(GLM_Full), res_full,
-     xlab = "Fitted Values", ylab = "Residuals")
-abline(0,0)
+# res_full <- resid(GLM_Full)
+# res_standardized_full <- rstandard(GLM_Full)
+# plot(fitted(GLM_Full), res_full,
+#      xlab = "Fitted Values", ylab = "Residuals")
+# abline(0,0)
 
 # Normal QQ-plot:
-qqnorm(res_full, ylab = "Residuals")
-qqline(res_full)
+# qqnorm(res_standardized_full, ylab = "Standardized Residuals")
+# qqline(res_standardized_full)
 
 # Smooth density plot:
-plot(density(res_full))
+# plot(density(res_standardized_full))
+
+# Leverage and Cook's distance:
+# leverage_full = hatvalues(GLM_Full)
+# cook_dist_full = cooks.distance(GLM_Full)
+# plot(res_standardizes, leverage_full)
+# points(fitted(GLM_Full), cook_dist_full, col = "Red")
 
 # The R-squared values and F-test gives reasonable values, which is a good sign.
 
@@ -38,20 +51,20 @@ plot(density(res_full))
 GLM_Reduced <- lm(data = training_df, Price ~ Rooms + Ground_Area + Home_Area + Wealthy + 
                   Municipality)
 summary(GLM_Reduced)
-# plot(GLM_Reduced)
+plot(GLM_Reduced)
 
 # Residual plot:
-res_reduced <- resid(GLM_Reduced)
-plot(fitted(GLM_Reduced), res_reduced,
-     xlab = "Fitted Values", ylab = "Residuals")
-abline(0,0)
+# res_reduced <- resid(GLM_Reduced)
+# plot(fitted(GLM_Reduced), res_reduced,
+#      xlab = "Fitted Values", ylab = "Residuals")
+# abline(0,0)
 
 # Normal QQ-plot:
-qqnorm(res_reduced, ylab = "Residuals")
-qqline(res_reduced)
+# qqnorm(res_reduced, ylab = "Residuals")
+# qqline(res_reduced)
 
 # Smooth density plot:
-plot(density(res_reduced))
+# plot(density(res_reduced))
 
 # The R-squared values and F-test gives approximatively the same values, which 
 # suggest that no accuracy is lost.
@@ -99,17 +112,17 @@ summary(GLM_Transform)
 # plot(GLM_Transform)
 
 # Residual plot:
-res_transform <- resid(GLM_Transform)
-plot(fitted(GLM_Transform), res_transform,
-     xlab = "Fitted Values", ylab = "Residuals")
-abline(0,0)
+# res_transform <- resid(GLM_Transform)
+# plot(fitted(GLM_Transform), res_transform,
+#      xlab = "Fitted Values", ylab = "Residuals")
+# abline(0,0)
 
 # Normal QQ-plot:
-qqnorm(res_transform, ylab = "Residuals")
-qqline(res_transform)
+# qqnorm(res_transform, ylab = "Residuals")
+# qqline(res_transform)
 
 # Smooth density plot:
-plot(density(res_transform))
+# plot(density(res_transform))
 
 # The R-squared values are an improvement partly due to the smaller values, and
 # the F-test still shows that the model i significant. Also the t-test is good.
@@ -122,17 +135,17 @@ summary(GLM_Transform)
 # plot(GLM_Transform)
 
 # Residual plot:
-res_transform <- resid(GLM_Transform)
-plot(fitted(GLM_Transform), res_transform,
-     xlab = "Fitted Values", ylab = "Residuals")
-abline(0,0)
+# res_transform <- resid(GLM_Transform)
+# plot(fitted(GLM_Transform), res_transform,
+#      xlab = "Fitted Values", ylab = "Residuals")
+# abline(0,0)
 
 # Normal QQ-plot:
-qqnorm(res_transform, ylab = "Residuals")
-qqline(res_transform)
+# qqnorm(res_transform, ylab = "Residuals")
+# qqline(res_transform)
 
 # Smooth density plot:
-plot(density(res_transform))
+# plot(density(res_transform))
 
 
 
@@ -360,3 +373,15 @@ for (i in test_df$Index)
 }}
 
 count_inside_prediction/43
+
+
+
+h = hatvalues(ln_mod_reduced)
+for (i in 1:820){if (h[i]>0.09){print(h[i],i)}}
+h[c(4, 8, 116, 505, 545)]
+
+cd = cooks.distance(ln_mod_reduced)
+for (i in 1:820){if (cd[i]>0.1){print(cd[i],i)}}
+
+cd
+h[c(4, 8, 116, 505, 545)]
