@@ -1,2 +1,2 @@
-# Vi hader statestik
-men det her er vores p5 project code
+# P5 Project 
+This is our code and data for our general linear models 

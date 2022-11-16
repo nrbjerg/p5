@@ -68,3 +68,8 @@ abline(coefficients(lm(Rooms ~ Home_Area, df)), col="red")
 plot(df$Home_Area[-c(4, 8)], df$Rooms[-c(4, 8)], xlab="Home Area", ylab="Number Of Rooms")
 abline(coefficients(lm(Rooms ~ Home_Area, df[-c(4, 8),])), col="red")
 
+# Plotting the data
+par(mfrow(1, 2))
+plot(density(df$Price), xlab="Price", main="")
+plot(density(log(df$Price)), xlab="ln(Price)", main="")
+
