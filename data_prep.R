@@ -87,3 +87,16 @@ compute_new_index <- function (old_index, df) {
   }
   return("Couldn't compute new index.")
 }
+
+remove_points_with_to_high_leverage <- function (mod, df) {
+  k <- length(coefficients(mod))
+  border <- 3 * k / nrow(df) 
+  indicies_to_drop <- c()
+  leverages <- hatvalues(mod)
+  for (row in 1:nrow(df)) {
+    if (leverages[row] > border) {
+      indicies_to_drop <- append(row, indicies_to_drop)
+    }
+  }
+  return(df[-indicies_to_drop])
+}
