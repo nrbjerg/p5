@@ -79,18 +79,11 @@ save(test_df, file = "test.Rda")
 
 
 # Finally the following function allows us to compute the new indicies
-compute_new_index <- function (old_index, original_df, new_df) { 
-  # For this to work, new_df must be a subset of the orginal df.
-  old_row <- original_df[old_index, ]
-  for (row_index in 1:nrow(new_df)) {
-    if (old_row == new_df[row_index, ]) {
-      return(row_index)
-    }
+compute_new_index <- function (old_index, df) {
+  for (row in 1:nrow(df)) {
+    if (df$Index[row] == old_index) {
+      return(row)
+    } 
   }
-  return("Couldn't find any matches.")
+  return("Couldn't compute new index.")
 }
-
-# Test:
-compute_new_index(2, data.frame(X=c(1, 2, 3), Y=c(2, 3, 4)), data.frame(X=c(2, 3), Y=c(3,4))) 
-# Output: 1 as expected.
-
