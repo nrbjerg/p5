@@ -51,7 +51,7 @@ df$Month <- str_replace(df$Month, "Juli", "July")
 df$Month <- str_replace(df$Month, "Oktober", "October")
 
 
-# Remove missing data points 
+# Remove missing datapoints
 
 df <- df[-c(28, 113, 115, 560, 727, 806, 66, 271, 493), ]
 
