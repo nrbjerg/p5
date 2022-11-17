@@ -98,5 +98,7 @@ remove_points_with_to_high_leverage <- function (mod, df) {
       indicies_to_drop <- append(row, indicies_to_drop)
     }
   }
+  print("Removing indicies with leverages:")
+  print(leverages[indicies_to_drop])
   return(df[-indicies_to_drop])
 }
