@@ -156,6 +156,21 @@ for (i in 1:820){
   }
 }
 
+# Residual plots with a selection of explanatory variables and Trend.
+par(mfrow = c(2, 2))
+plot(training_df$Trend, residuals,
+     xlab = "Trend", ylab = "Residuals")
+abline(0,0)
+plot(training_df$Rooms, residuals,
+     xlab = "Rooms", ylab = "Residuals")
+abline(0,0)
+plot(training_df$Ground_Area, residuals,
+     xlab = "Ground Area", ylab = "Residuals")
+abline(0,0)
+plot(training_df$Home_Area, residuals,
+     xlab = "Home Area", ylab = "Residuals")
+abline(0,0)
+
 # The outliers are analysed. The points are removed and a new model developed.
 training_df[c(2, 4, 8, 17, 19, 29, 77, 116, 255, 471, 486, 545),]
 
@@ -213,6 +228,21 @@ for (i in 1:808){
     print(i)
   }
 }
+
+# Residual plots with a selection of explanatory variables and Trend.
+par(mfrow = c(2, 2))
+plot(training_df_no_outliers$Trend, residuals,
+     xlab = "Trend", ylab = "Residuals")
+abline(0,0)
+plot(training_df_no_outliers$Rooms, residuals,
+     xlab = "Rooms", ylab = "Residuals")
+abline(0,0)
+plot(training_df_no_outliers$Ground_Area, residuals,
+     xlab = "Ground Area", ylab = "Residuals")
+abline(0,0)
+plot(training_df_no_outliers$Home_Area, residuals,
+     xlab = "Home Area", ylab = "Residuals")
+abline(0,0)
 
 
 
