@@ -2,7 +2,6 @@ old_df <- df
 require("purrr")
 require("faraway")
 require("Hmisc")
-df <- old_df 
 # Modeling with corona
 df$Corona <- unlist(map(df$Year, function(year) {
   if (year == 2020 ) { # Corona went into affect in 2020
@@ -12,19 +11,7 @@ df$Corona <- unlist(map(df$Year, function(year) {
   }
 }))
 
-add_corona <- function (df) {
-  df$Corona <- unlist(map(df$Year, function(year) {
-    if (year == 2020 ) { # Corona went into affect in 2020
-      return(1)
-    } else {
-      return(0)
-    }
-  }))
-  return(df)
-}
-
-df <- add_corona(df)
-# We start by reducing 
+# We start by removing outliers using the full model
 full <- lm(data = df,ln_Price ~ Rooms + Ground_Area + 
                     Home_Area + Distance_School + Distance_City_Hall +
                     Age + Wealthy + Municipality + Corona + Trend)
@@ -32,7 +19,9 @@ summary(full)
 plot(full) 
 
 # Removing outliers.
-df <- df[-c(4, compute_new_index(8, cityhomes, df))] # 8 becomes 7
+nrow(df)
+df <- remove_points_with_to_high_leverage(full, df)
+nrow(df)
 
 full <- lm(data = df,ln_Price ~ Rooms + Ground_Area + 
                     Home_Area + Distance_School + Distance_City_Hall +
