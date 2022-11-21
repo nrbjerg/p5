@@ -47,10 +47,11 @@ rm(municipality_vector, ln_Price, municipality, ind, variable, new_variable)
 #  - the response variable is ln_Price, the logarithmic Price
 #  - the explanatory variables are the local variables constructed above
 #  - the relationship will be multiple linear regression
-mod <- lm(model_df)
+mod <- lm(data = model_df, ln_Price ~ .)
 summary(mod)
 
+# Manuel backward elimination.
 mod_red <- lm(model_df[,-c(3, 5, 6, 9, 12, 13, 14, 16, 19, 23, 24, 26)])
 summary(mod_red)
 
-plot(mod_red)
+step(mod)
