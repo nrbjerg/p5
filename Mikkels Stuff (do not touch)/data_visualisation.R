@@ -168,6 +168,14 @@ boxplot(data = df, Price ~ Month)
 boxplot(data = df, Price ~ Month,
         outline = F)
 
+# Plotting the Age variable over Wealthy:
+boxplot(data = df, Age ~ Wealthy,
+        xlab = "Wealthy", ylab = "Age")
+
+# Plotting the Age variable over Municipality:
+boxplot(data = df, Distance_City_Hall ~ Municipality,
+        xlab = "Municipality", ylab = "Age")
+
 
 
 
@@ -195,8 +203,16 @@ LM = lm(data = df,
 abline(LM, col = "red"); summary(LM)
 
 # Plotting Distance_School over Wealthy:
+par(mfrow = c(1, 2))
 boxplot(data = df, Distance_School ~ Wealthy,
-        xlab = "Wealthy", ylab = "Distance School")
+        xaxt = "n", xlab = "", 
+        ylab = "Distance School")
+axis(side = 1, at = c(1, 2), labels = c("Non-wealthy Area", "Wealthy Area"))
+
+# Plotting Distance_School over Municipality:
+boxplot(data = df, Distance_School ~ Municipality,
+        xlab = "",
+        ylab = "Distance School")
 
 # Comparison of Distance_City_Hall and Price:
 cor(df$Distance_City_Hall, df$Price)
@@ -210,7 +226,14 @@ abline(LM, col = "red"); summary(LM)
 
 # Plotting Distance_City_Hall over Wealthy:
 boxplot(data = df, Distance_City_Hall ~ Wealthy,
-        xlab = "Wealthy", ylab = "Distance City Hall")
+        xaxt = "n", xlab = "", 
+        ylab = "Distance City Hall")
+axis(side = 1, at = c(1, 2), labels = c("Non-wealthy Area", "Wealthy Area"))
+
+# Plotting Distance_City_Hall over Municipality:
+boxplot(data = df, Distance_City_Hall ~ Municipality,
+        xlab = "", 
+        ylab = "Distance City Hall")
 
 # The distance variables do not seem all that much dependent on Price and 
 # Wealthy with the exception being that wealthy areas tend to be closer to the 
@@ -232,7 +255,7 @@ boxplot(data = df, Distance_City_Hall ~ Wealthy,
 
 
 
-
 # Cleaning
 rm(LM, df_subset)
+
 # rm(list=ls())

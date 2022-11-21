@@ -42,10 +42,10 @@ par(mfrow = c(2, 2))
 
 plot(mod_reduced, which = 1, caption = "", sub.caption = "")
 plot(mod_reduced, which = 2, caption = "", sub.caption = "")
-# plot(mod_reduced, which = 3, caption = "", sub.caption = "")
+plot(mod_reduced, which = 3, caption = "", sub.caption = "")
 # plot(mod_reduced, which = 4, caption = "", sub.caption = "")
 plot(mod_reduced, which = 5, caption = "", sub.caption = "")
-plot(mod_reduced, which = 6, caption = "", sub.caption = "")
+# plot(mod_reduced, which = 6, caption = "", sub.caption = "")
 
 # We see that there are problems with the residual plot, since we seem to have
 # a trumpet shape, that is the variance of the residuals become larger for
@@ -122,10 +122,10 @@ par(mfrow = c(2, 2))
 
 plot(ln_mod_reduced, which = 1, caption = "", sub.caption = "")
 plot(ln_mod_reduced, which = 2, caption = "", sub.caption = "")
-# plot(ln_mod_reduced, which = 3, caption = "", sub.caption = "")
+plot(ln_mod_reduced, which = 3, caption = "", sub.caption = "")
 # plot(ln_mod_reduced, which = 4, caption = "", sub.caption = "")
 plot(ln_mod_reduced, which = 5, caption = "", sub.caption = "")
-plot(ln_mod_reduced, which = 6, caption = "", sub.caption = "")
+# plot(ln_mod_reduced, which = 6, caption = "", sub.caption = "")
 
 # The residual plot and other plots have improved monumentally.
 
@@ -197,10 +197,10 @@ par(mfrow = c(2, 2))
 
 plot(ln_mod_reduced_no_outliers, which = 1, caption = "", sub.caption = "")
 plot(ln_mod_reduced_no_outliers, which = 2, caption = "", sub.caption = "")
-# plot(ln_mod_reduced_no_outliers, which = 3, caption = "", sub.caption = "")
+plot(ln_mod_reduced_no_outliers, which = 3, caption = "", sub.caption = "")
 # plot(ln_mod_reduced_no_outliers, which = 4, caption = "", sub.caption = "")
 plot(ln_mod_reduced_no_outliers, which = 5, caption = "", sub.caption = "")
-plot(ln_mod_reduced_no_outliers, which = 6, caption = "", sub.caption = "")
+# plot(ln_mod_reduced_no_outliers, which = 6, caption = "", sub.caption = "")
 
 # Outliers from the residuals.
 residuals <- resid(ln_mod_reduced_no_outliers)
