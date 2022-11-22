@@ -192,6 +192,12 @@ summary(ln_mod_reduced_no_outliers)
 
 anova(ln_mod_full_no_outliers, ln_mod_reduced_no_outliers)
 
+par(mfrow = c(1, 1))
+res_df <- data.frame(Residuals = residuals(ln_mod_reduced_no_outliers), Trend = training_df_no_outliers$Trend)
+ab <- coefficients(lm(data = res_df, Residuals ~ Trend))
+plot(res_df$Trend, res_df$Residuals, xlab="Trend", ylab="Residuals")
+abline(ab[1], ab[2], col="red")
+rm(res_df, ab)
 # We get residual plots:
 par(mfrow = c(2, 2))
 
