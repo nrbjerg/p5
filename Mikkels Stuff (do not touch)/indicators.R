@@ -55,3 +55,5 @@ mod_red <- lm(model_df[,-c(3, 5, 6, 9, 12, 13, 14, 16, 19, 23, 24, 26)])
 summary(mod_red)
 
 step(mod)
+
+mod_red <- lm(data = model_df[,-c()])
