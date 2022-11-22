@@ -56,8 +56,8 @@ plot(mod_reduced, which = 5, caption = "", sub.caption = "")
 # Outliers from the leverages.
 leverages <- hatvalues(mod_reduced)
 
-for (i in 1:820){
-  if (leverages[i] > 3*sum(leverages)/820){
+for (i in 1:length(leverages)){
+  if (leverages[i] > 3 * sum(leverages) / length(leverages)){
     print(i)
   }
 }
@@ -65,7 +65,7 @@ for (i in 1:820){
 # Outliers from the Cook's distances.
 cooks_distance <- cooks.distance(mod_reduced)
 
-for (i in 1:820){
+for (i in 1:length(cooks_distance)){
   if (cooks_distance[i] >= 0.5){
     print(i)
   }
@@ -132,7 +132,7 @@ plot(ln_mod_reduced, which = 5, caption = "", sub.caption = "")
 # Outliers from the residuals.
 residuals <- resid(ln_mod_reduced)
 
-for (i in 1:820){
+for (i in 1:length(residuals)){
   if (abs(residuals[i]) > 1){
     print(i)
   }
@@ -141,8 +141,8 @@ for (i in 1:820){
 # Outliers from the leverages.
 leverages <- hatvalues(ln_mod_reduced)
 
-for (i in 1:820){
-  if (leverages[i] > 3*sum(leverages)/820){
+for (i in 1:length(leverages)){
+  if (leverages[i] > 3 * sum(leverages) / length(leverages)){
     print(i)
   }
 }
@@ -150,7 +150,7 @@ for (i in 1:820){
 # Outliers from the Cook's distances.
 cooks_distance <- cooks.distance(ln_mod_reduced)
 
-for (i in 1:820){
+for (i in 1:length(cooks_distance)){
   if (cooks_distance[i] >= 0.5){
     print(i)
   }
@@ -211,7 +211,7 @@ plot(ln_mod_reduced_no_outliers, which = 5, caption = "", sub.caption = "")
 # Outliers from the residuals.
 residuals <- resid(ln_mod_reduced_no_outliers)
 
-for (i in 1:808){
+for (i in 1:length(residuals)){
   if (abs(residuals[i]) > 1){
     print(i)
   }
@@ -220,8 +220,8 @@ for (i in 1:808){
 # Outliers from the leverages.
 leverages <- hatvalues(ln_mod_reduced_no_outliers)
 
-for (i in 1:808){
-  if (leverages[i] > 3*sum(leverages)/808){
+for (i in 1:length(leverages)){
+  if (leverages[i] > 3 * sum(leverages) / length(leverages)){
     print(i)
   }
 }
@@ -229,7 +229,7 @@ for (i in 1:808){
 # Outliers from the Cook's distances.
 cooks_distance <- cooks.distance(ln_mod_reduced_no_outliers)
 
-for (i in 1:808){
+for (i in 1:length(cooks_distance)){
   if (cooks_distance[i] >= 0.5){
     print(i)
   }
@@ -293,7 +293,7 @@ lines(training_df_no_outliers_arranged$Fitted, training_df_no_outliers_arranged$
 # Counting the number of data points inside the prediction interval.
 count_inside_prediction = 0
 
-for (i in 1:808)
+for (i in 1:length(training_df_no_outliers_arranged$ln_Price))
 {if (training_df_no_outliers_arranged$Lower_Bound_Predint[i] <= training_df_no_outliers_arranged$ln_Price[i] 
      && training_df_no_outliers_arranged$ln_Price[i] <= training_df_no_outliers_arranged$Upper_Bound_Predint[i]) {
   count_inside_prediction = count_inside_prediction + 1
@@ -302,7 +302,7 @@ for (i in 1:808)
 }}
 
 count_inside_prediction
-count_inside_prediction / 808
+count_inside_prediction / length(training_df_no_outliers_arranged$ln_Price)
 
 # We now replicate the above, but predicting the test data frame. First, we
 # calculate the predictions, and prediction and confidence intervals.
@@ -341,7 +341,7 @@ lines(test_df_arranged$Fitted, test_df_arranged$Upper_Bound_Predint,
 # Counting the number of data points inside the prediction interval.
 count_inside_prediction = 0
 
-for (i in 1:43)
+for (i in 1:length(test_df_arranged$ln_Price))
 {if (test_df_arranged$Lower_Bound_Predint[i] <= test_df_arranged$ln_Price[i] 
      && test_df_arranged$ln_Price[i] <= test_df_arranged$Upper_Bound_Predint[i]) {
   count_inside_prediction = count_inside_prediction + 1
@@ -350,12 +350,12 @@ for (i in 1:43)
 }}
 
 count_inside_prediction
-count_inside_prediction / 43
+count_inside_prediction / length(test_df_arranged$ln_Price)
 
 # Counting the number of data points with ln_Price larger than the prediction.
 count_bigger_than_prediction = 0
 
-for (i in 1:43)
+for (i in 1:length(test_df_arranged$ln_Price))
 {if (test_df_arranged$Fitted[i] < test_df_arranged$ln_Price[i]) {
   count_bigger_than_prediction = count_bigger_than_prediction + 1
 } else {
@@ -363,7 +363,7 @@ for (i in 1:43)
 }}
 
 count_bigger_than_prediction
-count_bigger_than_prediction / 43
+count_bigger_than_prediction / length(test_df_arranged$ln_Price)
 
 
 # Clean

@@ -22,7 +22,7 @@ indicator <- function(data, category){
 
 # Defining a model data frame by adding ln_Price and the local variables.
 municipality_vector <- df[,17] # municipality data vector
-ln_Price <- df[,c(1,18)] # ln_Price data vector
+ln_Price <- df[, c(1, 18)] # ln_Price data vector
 
 model_df <- data.frame(ln_Price) # data frame with only ln_Price
 
@@ -66,8 +66,8 @@ plot(mod, which = 5, caption = "", sub.caption = "")
 # Outliers from the leverages.
 leverages <- hatvalues(mod)
 
-for (i in 1:820){
-  if (leverages[i] > 3*sum(leverages)/820){
+for (i in 1:length(leverages)){
+  if (leverages[i] > 3 * sum(leverages) / length(leverages)){
     print(i)
     outliers <- append(outliers, i)
   }
@@ -76,7 +76,7 @@ for (i in 1:820){
 # Outliers from the Cook's distances.
 cooks_distance <- cooks.distance(mod)
 
-for (i in 1:820){
+for (i in 1:length(cooks_distance)){
   if (cooks_distance[i] >= 0.5){
     print(i)
     outliers <- append(outliers, i)
@@ -148,7 +148,7 @@ lines(model_df_training_no_outliers_arranged$Fitted, model_df_training_no_outlie
 # Counting the number of data points inside the prediction interval.
 count_inside_prediction <- 0
 
-for (i in 1:804)
+for (i in 1:length(model_df_training_no_outliers_arranged$ln_Price))
 {if (model_df_training_no_outliers_arranged$Lower_Bound_Predint[i] <= model_df_training_no_outliers_arranged$ln_Price[i] 
      && model_df_training_no_outliers_arranged$ln_Price[i] <= model_df_training_no_outliers_arranged$Upper_Bound_Predint[i]) {
   count_inside_prediction = count_inside_prediction + 1
@@ -157,7 +157,7 @@ for (i in 1:804)
 }}
 
 count_inside_prediction
-count_inside_prediction / 804
+count_inside_prediction / length(model_df_training_no_outliers_arranged$ln_Price)
 
 # We now replicate the above, but predicting the test data frame. First, we
 # calculate the predictions, and prediction and confidence intervals.
@@ -196,7 +196,7 @@ lines(model_df_test_arranged$Fitted, model_df_test_arranged$Upper_Bound_Predint,
 # Counting the number of data points inside the prediction interval.
 count_inside_prediction = 0
 
-for (i in 1:43)
+for (i in 1:length(model_df_test_arranged$ln_Price))
 {if (model_df_test_arranged$Lower_Bound_Predint[i] <= model_df_test_arranged$ln_Price[i] 
      && model_df_test_arranged$ln_Price[i] <= model_df_test_arranged$Upper_Bound_Predint[i]) {
   count_inside_prediction = count_inside_prediction + 1
@@ -205,12 +205,12 @@ for (i in 1:43)
 }}
 
 count_inside_prediction
-count_inside_prediction / 43
+count_inside_prediction / length(model_df_test_arranged$ln_Price)
 
 # Counting the number of data points with ln_Price larger than the prediction.
 count_bigger_than_prediction = 0
 
-for (i in 1:43)
+for (i in 1:length(model_df_test_arranged$ln_Price))
 {if (model_df_test_arranged$Fitted[i] < model_df_test_arranged$ln_Price[i]) {
   count_bigger_than_prediction = count_bigger_than_prediction + 1
 } else {
@@ -218,4 +218,11 @@ for (i in 1:43)
 }}
 
 count_bigger_than_prediction
-count_bigger_than_prediction / 43
+count_bigger_than_prediction / length(model_df_test_arranged$ln_Price)
+
+# Cleaning.
+rm(mod, mod_red, model_df, model_df_test, model_df_training)
+rm(mod_backward_elimination, model_df_test_arranged, 
+   model_df_training_no_outliers, model_df_training_no_outliers_arranged,
+   pred_confint, predint, cooks_distance, count_bigger_than_prediction,
+   count_inside_prediction, i, leverages, outliers)
