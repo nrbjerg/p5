@@ -73,3 +73,29 @@ par(mfrow(1, 2))
 plot(density(df$Price), xlab="Price", main="")
 plot(density(log(df$Price)), xlab="ln(Price)", main="")
 
+# Wealthy percentage plots
+percentages <- c()
+municipalities <- c()
+trends <- c()
+for (trend in sort(unique(df$Trend))) {
+  current <- subset(df, Trend == trend)
+  for (municipality in c("Copenhagen", "Aarhus", "Aalborg", "Odense")) {
+    specific <- subset(current, Municipality == municipality)
+    percentages <- append((100 * nrow(subset(specific, Wealthy == 1)) / nrow(specific)), percentages)  
+    municipalities <- append(municipality, municipalities)
+    trends <- append(trend, trends)
+  }
+  percentages <- append((100 * nrow(subset(current, Wealthy == 1)) / nrow(current)), percentages)  
+  municipalities <- append("General", municipalities)
+  trends <- append(trend, trends) 
+}
+
+df_p <- data.frame(Municipality <- municipalities, Trend = trends, Percentages = percentages)
+municipalities = unique(df_p$Municipality)
+plot(df_p$Trend, df_p$Percentages, col = vector_color_palette(df_p$Municipality), xlab="Trend", ylab="Percentages of Wealthy Homes",  pch=16)
+legend(x="bottomleft", legend=municipalities, col=vector_color_palette(municipalities), lty=rep(1, 5), cex=1)
+for (municipality in municipalities) {
+  indicies = df_p$Municipality == municipality
+  lines(df_p$Trend[indicies], df_p$Percentages[indicies], col = color_palette(municipality), type="l")      
+}
+

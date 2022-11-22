@@ -1,94 +1,62 @@
-old_df <- df
 require("purrr")
 require("faraway")
 require("Hmisc")
 # Modeling with corona
-df$Corona <- unlist(map(df$Year, function(year) {
-  if (year == 2020 ) { # Corona went into affect in 2020
+f <- function(indicated_year) {
+  return(unlist(map(df$Year, function(year) {
+  if (year == indicated_year) { # Corona went into affect in 2020
     return(1)
   } else {
     return(0)
   }
-}))
-
+  })))
+}
+df$Corona_2020 <- f(2020)
+df$Corona_2021 <- f(2021)
+df$Corona_2022 <- f(2022)
 # We start by removing outliers using the full model
 full <- lm(data = df,ln_Price ~ Rooms + Ground_Area + 
                     Home_Area + Distance_School + Distance_City_Hall +
-                    Age + Wealthy + Municipality + Corona + Trend)
+                    Age + Wealthy + Municipality +Corona_2020+ Corona_2021 + Corona_2022 + Trend)
 summary(full) 
 plot(full) 
 
 # Removing outliers.
-nrow(df)
 df <- remove_points_with_to_high_leverage(full, df)
-nrow(df)
 
 full <- lm(data = df,ln_Price ~ Rooms + Ground_Area + 
                     Home_Area + Distance_School + Distance_City_Hall +
-                    Age + Wealthy + Municipality + Corona + Trend)
+                    Age + Wealthy + Municipality + Corona_2021 + Corona_2022 + Trend)
+# Indicates that we mightwant to remove rooms, ground_area, distance_school & age
 summary(full) 
-plot(full)
-max(hatvalues(full))
 
-# We see that we may remove Distance_School & Distance_City_Hall
 
-reduced <- lm(data = df,ln_Price ~ Rooms + Ground_Area + 
-                    Home_Area + Wealthy + Municipality + Corona + Trend)
+# We see that we may remove rooms, ground_area, distance_school, age
+reduced <- lm(data = df,ln_Price ~  
+                Home_Area + Distance_City_Hall +
+                Wealthy + Municipality + Corona_2021 + Trend)
 summary(reduced) 
 
 anova(reduced, full) 
-# We get a p value of 0.00027 => we aren't able to remove both terms
-
-# Checking if we can remove each term one by one.
-
-# Removing Distance_City_Hall
-reduced_2 <- lm(data = df,ln_Price ~ Rooms + Ground_Area + 
-                    Home_Area + Distance_School +
-                    Age + Wealthy + Municipality + Corona + Trend)
-summary(reduced_2) # Can not reduce further 
-anova(reduced_2, full) # p value of 0.11 => we can remove the term
-
-# Removing Distance_School
-reduced_3 <- lm(data = df,ln_Price ~ Rooms + Ground_Area + 
-                    Home_Area + Distance_City_Hall +
-                    Age + Wealthy + Municipality + Corona + Trend)
-summary(reduced_3) 
-# p values indicate that we may remove Distance_City_Hall,
-# however we tried this earlier (didn't work)
-anova(reduced_3, full) # p value of 0.07 => we can remove the term
-
-summary(reduced_2)$adj.r.squared; summary(reduced_3)$adj.r.squared
-# We see that the model where we removed Distance_City_Hall performs better.
-
-plot(df$Home_Area, residuals(reduced_2))
-# We will now check for colinarity using "variance of inflation" and "condition numbers"
+# We get a p value of 0.1661 => we are able to remove all terms
 
 # Variance of Inflation Factors.
 # 1 means no colinearity, 1-5 means little colinearity, 5+ reconsider the model.
-vif(reduced_2)
+vif(reduced)
 
-
-1 / (1 - summary(lm(Rooms ~ Ground_Area + Home_Area + Distance_School + Age + Wealthy + Municipality + Corona + Trend, data=df))$r.squared)
-# Output: please note that we have removed the prepended municipality for demonstration purposes
-# Rooms                  Ground_Area            Home_Area 
-# 1.913791               1.172526               1.851480 
-# 
-# Distance_School        Age                    Wealthy 
-# 1.454920               1.279836               1.323772 
-#
-# Aarhus                 Copenhagen             Odense 
-# 1.368772               1.470851               1.806908 
-#
-# Corona                 Trend 
-# 1.133202               1.154540 
+# Output: 
+# Home_Area              Distance_City_Hall     Wealthy     MunicipalityCopenhagen 
+# 1.144756               2.727092               1.845909    1.409125 
+# MunicipalityAarhus     MunicipalityOdense     Corona      Trend 
+# 1.636678               1.860744               1.138364    1.158779 
 # Conclusion: This does not seem to be that bad.
 
 
-# Condition Numbers (we want them less than 30)
-X <- model.matrix(reduced_2) # Code from vytaute
+# Condition Numbers (we want them less than 30) NOTE: this code is from vytaute
+X <- model.matrix(reduced) 
 X <- scale(X, center = FALSE, scale = sqrt(colSums(X^2)))
 e <- eigen(t(X) %*% X)$values
 sqrt(max(e)/e)
 # Output:
-#  [1]  1.00  2.63  2.69  2.91  4.30  5.01
-#  [7]  5.76  6.36  7.70  8.09 14.49 16.75
+#  [1]  1.000000  2.227809  2.268016  2.454677  3.916728  4.291657  6.391971  9.420670 18.389007
+# Conclusion: This does not seem to be that bad.

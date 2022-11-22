@@ -22,8 +22,7 @@ df$Wealthy <- df$Velhavende
 df$Municipality <- df$KommuneNavn
 
 drop <- c("Pris_Salg","Areal_Bolig", "Areal_Grund", "Ejd_AntalRum", "Salgsmaaned", "StorGrund", "Dist_skole", "Dist_raadhus", "Dist_Town_Hall", "KommuneNavn", "Velhavende", "Alder", "Dist_raadhus", "Dist_skole", "Sogn", "Afstemningsomraade", "Salgsaar", "Salgsmaaned_encoded")
-df = df[,!(names(df) %in% drop)]
-
+df <- df[,!(names(df) %in% drop)]
 #install.packages("stringr")
 library(stringr)
 
