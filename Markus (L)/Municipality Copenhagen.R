@@ -1,4 +1,5 @@
 library(dplyr)
+par(mfrow=c(1,2))
 
 ### Dividing the Data Set in Municipalities ###
 training_df_no_outliers = training_df[-c(2, 4, 8, 17, 19, 29, 77, 116, 255, 471,
@@ -61,7 +62,6 @@ anova(GLMrem_Copenhagen_Full,GLMrem_Copenhagen_red3)
 GLMrem_Copenhagen_red4 <- lm(data = dfrem_Copenhagen,
                              ln_Price ~ Home_Area + Age + Wealthy)
 summary(GLMrem_Copenhagen_red4)
-plot(GLMrem_Copenhagen_red4)
 anova(GLMrem_Copenhagen_Full,GLMrem_Copenhagen_red4)
 
 
@@ -70,6 +70,10 @@ res_Copenhagen <- resid(GLMrem_Copenhagen_red4)
 plot(fitted(GLMrem_Copenhagen_red4), res_Copenhagen,
      xlab = "Fitted Values", ylab = "Residuals")
 abline(0,0)
+
+#Plot of normal Q-Q plot
+plot(GLMrem_Copenhagen_red4,2)
+
 
 # Smooth density plot:
 plot(density(dfrem_Copenhagen$ln_Price))
@@ -95,7 +99,7 @@ df_Copenhagen$Upper_Bound_Predint <- predint$upr
 df_Copenhagen_arranged = arrange(df_Copenhagen, Fitted)
 
 plot(data = df_Copenhagen_arranged, ln_Price ~ Fitted,
-     xlab = "Predictions", ylab = "Logarithm of Price")
+     xlab = "Predictions", ylab = "ln_Price")
 
 lines(df_Copenhagen_arranged$Fitted, df_Copenhagen_arranged$Fitted,
       col = "Red", lwd = 1.5)
@@ -124,14 +128,14 @@ count_inside_prediction / 105
 
 # We now replicate the above, but predicting the test data frame. First, we
 # calculate the predictions, and prediction and confidence intervals.
-pred_confint = as.data.frame(predict(GLMrem_Copenhagen_red4, test_df,
+pred_confint = as.data.frame(predict(GLMrem_Copenhagen_red4, test_df_Copenhagen,
                                      interval = 'confidence'))
 
-test_df$Fitted <- pred_confint$fit
-test_df$Lower_Bound_Confint <- pred_confint$lwr
-test_df$Upper_Bound_Confint <- pred_confint$upr
+test_df_Copenhagen$Fitted <- pred_confint$fit
+test_df_Copenhagen$Lower_Bound_Confint <- pred_confint$lwr
+test_df_Copenhagen$Upper_Bound_Confint <- pred_confint$upr
 
-predint = predict(GLMrem_Copenhagen_red4, test_df,
+predint = predict(GLMrem_Copenhagen_red4, test_df_Copenhagen,
                   interval = 'prediction')
 predint = as.data.frame(predint)
 
@@ -139,10 +143,10 @@ test_df$Lower_Bound_Predint <- predint$lwr
 test_df$Upper_Bound_Predint <- predint$upr
 
 # Plotting the confidence and prediction intervals against fitted values.
-test_df_arranged = arrange(test_df, Fitted)
+test_df_arranged = arrange(test_df_Copenhagen, Fitted)
 
 plot(data = test_df_arranged, ln_Price ~ Fitted,
-     xlab = "Predictions", ylab = "Logarithm of Price")
+     xlab = "Predictions", ylab = "ln_Price")
 
 lines(test_df_arranged$Fitted, test_df_arranged$Fitted,
       col = "Red", lwd = 1.5)
@@ -158,7 +162,7 @@ lines(test_df_arranged$Fitted, test_df_arranged$Upper_Bound_Predint,
 # Counting the number of data points inside the prediction interval.
 count_inside_prediction = 0
 
-for (i in 1:43)
+for (i in 1:2)
 {if (test_df_arranged$Lower_Bound_Predint[i] <= log(test_df_arranged$Price[i])
      && log(test_df_arranged$Price[i]) <= test_df_arranged$Upper_Bound_Predint[i]) {
   count_inside_prediction = count_inside_prediction + 1
@@ -167,13 +171,13 @@ for (i in 1:43)
 }}
 
 count_inside_prediction
-count_inside_prediction / 43
+count_inside_prediction / 2
 
 # Counting the number of data points with log(Price) larger than the prediction.
 count_bigger_than_prediction = 0
 
 
-for (i in 1:43)
+for (i in 1:2)
 {if (test_df_arranged$Fitted[i] < test_df_arranged$ln_Price[i]) {
   count_bigger_than_prediction = count_bigger_than_prediction + 1
 } else {
@@ -181,157 +185,4 @@ for (i in 1:43)
 }}
 
 count_bigger_than_prediction
-count_bigger_than_prediction / 43
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### Dividing the Data Set in Municipalities ###
-
-df_copenhagen <- subset(training_df, Municipality == 'Copenhagen')
-df_aarhus <- subset(training_df, Municipality == 'Aarhus')
-df_odense <- subset(training_df, Municipality == 'Odense')
-df_aalborg <- subset(training_df, Municipality == 'Aalborg')
-
-
-
-
-
-### Model for Copenhagen ###
-
-# Full model restricted to Copenhagen. Omit variables Trend, Year, Voting_Area, 
-# Parish, Municipality.
-GLM_Copenhagen_Full <- lm(data = df_copenhagen,
-                          Price ~ Rooms + Ground_Area + Home_Area + 
-                            Distance_School + Distance_City_Hall + Age + Wealthy)
-summary(GLM_Copenhagen_Full)
-plot(GLM_Copenhagen_Full)
-
-#Remove outliers 
-dfred_copenhagen <- df_copenhagen[-c(4,8),]
-
-GLMred_Copenhagen_Full <- lm(data = dfred_copenhagen,
-                          Price ~ Rooms + Ground_Area + Home_Area + 
-                            Distance_School + Distance_City_Hall + Age + Wealthy)
-summary(GLMred_Copenhagen_Full)
-plot(GLMred_Copenhagen_Full)
-
-
-
-
-
-# The R-squared values and the F-statistic are great. The t-test gives the 
-# following insignificance parameters:
-# Ground_Area, Distance_School, and Age.
-
-# We remove the variables mentioned in the above t-test.
-GLMred_Copenhagen_Reduced <- lm(data = dfred_copenhagen,
-                                Price ~ Rooms + Ground_Area + Home_Area + 
-                                 + Distance_City_Hall + Age + Wealthy)
-summary(GLMred_Copenhagen_Reduced)
-anova(GLMred_Copenhagen_Full,GLMred_Copenhagen_Reduced)
-
-
-
-# The R-squared values and the F-statistic are great. The t-test gives the 
-# following insignificance parameters:
-# Ground_Area, Distance_School, and Age.
-
-# We remove the variables mentioned in the above t-test.
-GLMred_Copenhagen_Reduced1 <- lm(data = dfred_copenhagen,
-                                Price ~ Rooms + Ground_Area + Home_Area + 
-                                  + Age + Wealthy)
-summary(GLMred_Copenhagen_Reduced1)
-anova(GLMred_Copenhagen_Full,GLMred_Copenhagen_Reduced1)
-
-
-# The R-squared values and the F-statistic are great. The t-test gives the 
-# following insignificance parameters:
-# Ground_Area, Distance_School, and Age.
-
-# We remove the variables mentioned in the above t-test.
-GLMred_Copenhagen_Reduced2 <- lm(data = dfred_copenhagen,
-                                 Price ~ Rooms + Home_Area + 
-                                   + Age + Wealthy)
-summary(GLMred_Copenhagen_Reduced2)
-anova(GLMred_Copenhagen_Full,GLMred_Copenhagen_Reduced2)
-
-
-# The R-squared values and the F-statistic are great. The t-test gives the 
-# following insignificance parameters:
-# Ground_Area, Distance_School, and Age.
-
-# We remove the variables mentioned in the above t-test.
-GLMred_Copenhagen_Reduced3 <- lm(data = dfred_copenhagen,
-                                 Price ~ Rooms + Home_Area 
-                                   + Age)
-summary(GLMred_Copenhagen_Reduced3)
-anova(GLMred_Copenhagen_Full,GLMred_Copenhagen_Reduced3)
-plot(GLMred_Copenhagen_Reduced3)
-
-res_Copenhagen <- resid(GLMred_Copenhagen_Reduced3)
-plot(fitted(GLMred_Copenhagen_Reduced3), res_Copenhagen,
-     xlab = "Fitted Values", ylab = "Residuals")
-abline(0,0)
-
-# Smooth density plot:
-plot(density(res_Copenhagen))
+count_bigger_than_prediction / 2
