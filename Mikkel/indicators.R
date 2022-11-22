@@ -22,7 +22,7 @@ indicator <- function(data, category){
 
 # Defining a model data frame by adding ln_Price and the local variables.
 municipality_vector <- df[,17] # municipality data vector
-ln_Price <- df[,18] # ln_Price data vector
+ln_Price <- df[,c(1,18)] # ln_Price data vector
 
 model_df <- data.frame(ln_Price) # data frame with only ln_Price
 
@@ -47,13 +47,175 @@ rm(municipality_vector, ln_Price, municipality, ind, variable, new_variable)
 #  - the response variable is ln_Price, the logarithmic Price
 #  - the explanatory variables are the local variables constructed above
 #  - the relationship will be multiple linear regression
-mod <- lm(data = model_df, ln_Price ~ .)
+model_df_training <- subset(model_df, Trend < 12)
+model_df_test <- subset(model_df, Trend == 12)
+
+mod <- lm(data = model_df_training, ln_Price ~ . -Trend)
 summary(mod)
 
-# Manuel backward elimination.
-mod_red <- lm(model_df[,-c(3, 5, 6, 9, 12, 13, 14, 16, 19, 23, 24, 26)])
+outliers <- c()
+
+# Residual plots.
+par(mfrow = c(2, 2))
+
+plot(mod, which = 1, caption = "", sub.caption = "")
+plot(mod, which = 2, caption = "", sub.caption = "")
+plot(mod, which = 3, caption = "", sub.caption = "")
+plot(mod, which = 5, caption = "", sub.caption = "")
+
+# Outliers from the leverages.
+leverages <- hatvalues(mod)
+
+for (i in 1:820){
+  if (leverages[i] > 3*sum(leverages)/820){
+    print(i)
+    outliers <- append(outliers, i)
+  }
+}
+
+# Outliers from the Cook's distances.
+cooks_distance <- cooks.distance(mod)
+
+for (i in 1:820){
+  if (cooks_distance[i] >= 0.5){
+    print(i)
+    outliers <- append(outliers, i)
+  }
+}
+
+# Using the step function for stepwise elimination of parameters.
+mod <- lm(data = model_df_training[-outliers,], ln_Price ~ . -Trend)
+summary(mod)
+
+mod_backward_elimination <- lm(data = model_df_training[-outliers,], 
+                               ln_Price ~ . -Trend-Copenhagen_Ground_Area-Odense_Distance_School-Copenhagen_Distance_School-Copenhagen_Rooms-Odense_Rooms-Aarhus_Distance_City_Hall-Aalborg_Rooms-Aalborg_Ground_Area-Aarhus_Ground_Area-Aarhus_Age-Aalborg_Distance_School-Copenhagen_Distance_City_Hall-Aarhus_Distance_School)
+summary(mod_backward_elimination)
+  
+mod_red <- step(mod)
 summary(mod_red)
 
-step(mod)
+anova(mod, mod_red)
 
-mod_red <- lm(data = model_df[,-c()])
+# Residual plots.
+par(mfrow = c(2, 2))
+
+plot(mod_red, which = 1, caption = "", sub.caption = "")
+plot(mod_red, which = 2, caption = "", sub.caption = "")
+plot(mod_red, which = 3, caption = "", sub.caption = "")
+plot(mod_red, which = 5, caption = "", sub.caption = "")
+
+
+
+# Predictions.
+par(mfrow = c(1, 2))
+
+# Calculating and adding predictions of the training data based on the reduced 
+# log model together with prediction and confidence intervals.
+model_df_training_no_outliers <- model_df_training[-outliers,]
+
+pred_confint = predict(mod_red, model_df_training_no_outliers, 
+                       interval = 'confidence')
+pred_confint = as.data.frame(pred_confint)
+
+model_df_training_no_outliers$Fitted <- pred_confint$fit
+model_df_training_no_outliers$Lower_Bound_Confint <- pred_confint$lwr
+model_df_training_no_outliers$Upper_Bound_Confint <- pred_confint$upr
+
+predint = predict(mod_red, model_df_training_no_outliers, 
+                  interval = 'prediction')
+predint = as.data.frame(predint)
+
+model_df_training_no_outliers$Lower_Bound_Predint <- predint$lwr
+model_df_training_no_outliers$Upper_Bound_Predint <- predint$upr
+
+# Plotting the confidence and prediction intervals against fitted values.
+model_df_training_no_outliers_arranged = arrange(model_df_training_no_outliers, Fitted)
+
+plot(data = model_df_training_no_outliers_arranged, ln_Price ~ Fitted,
+     xlab = "Predictions", ylab = "Logarithm of Price")
+
+lines(model_df_training_no_outliers_arranged$Fitted, model_df_training_no_outliers_arranged$Fitted, 
+      col = "Red", lwd = 1.5)
+lines(model_df_training_no_outliers_arranged$Fitted, model_df_training_no_outliers_arranged$Lower_Bound_Confint, 
+      col = "Green", lwd = 1.5)
+lines(model_df_training_no_outliers_arranged$Fitted, model_df_training_no_outliers_arranged$Upper_Bound_Confint, 
+      col = "Green", lwd = 1.5)
+lines(model_df_training_no_outliers_arranged$Fitted, model_df_training_no_outliers_arranged$Lower_Bound_Predint, 
+      col = "Blue", lwd = 1.5)
+lines(model_df_training_no_outliers_arranged$Fitted, model_df_training_no_outliers_arranged$Upper_Bound_Predint, 
+      col = "Blue", lwd = 1.5)
+
+# Counting the number of data points inside the prediction interval.
+count_inside_prediction <- 0
+
+for (i in 1:804)
+{if (model_df_training_no_outliers_arranged$Lower_Bound_Predint[i] <= model_df_training_no_outliers_arranged$ln_Price[i] 
+     && model_df_training_no_outliers_arranged$ln_Price[i] <= model_df_training_no_outliers_arranged$Upper_Bound_Predint[i]) {
+  count_inside_prediction = count_inside_prediction + 1
+} else {
+  0
+}}
+
+count_inside_prediction
+count_inside_prediction / 804
+
+# We now replicate the above, but predicting the test data frame. First, we
+# calculate the predictions, and prediction and confidence intervals.
+pred_confint = predict(mod_red, model_df_test, 
+                       interval = 'confidence')
+pred_confint = as.data.frame(pred_confint)
+
+model_df_test$Fitted <- pred_confint$fit
+model_df_test$Lower_Bound_Confint <- pred_confint$lwr
+model_df_test$Upper_Bound_Confint <- pred_confint$upr
+
+predint = predict(mod_red, model_df_test, 
+                  interval = 'prediction')
+predint = as.data.frame(predint)
+
+model_df_test$Lower_Bound_Predint <- predint$lwr
+model_df_test$Upper_Bound_Predint <- predint$upr
+
+# Plotting the confidence and prediction intervals against fitted values.
+model_df_test_arranged = arrange(model_df_test, Fitted)
+
+plot(data = model_df_test_arranged, ln_Price ~ Fitted,
+     xlab = "Predictions", ylab = "Logarithm of Price")
+
+lines(model_df_test_arranged$Fitted, model_df_test_arranged$Fitted, 
+      col = "Red", lwd = 1.5)
+lines(model_df_test_arranged$Fitted, model_df_test_arranged$Lower_Bound_Confint, 
+      col = "Green", lwd = 1.5)
+lines(model_df_test_arranged$Fitted, model_df_test_arranged$Upper_Bound_Confint, 
+      col = "Green", lwd = 1.5)
+lines(model_df_test_arranged$Fitted, model_df_test_arranged$Lower_Bound_Predint, 
+      col = "Blue", lwd = 1.5)
+lines(model_df_test_arranged$Fitted, model_df_test_arranged$Upper_Bound_Predint, 
+      col = "Blue", lwd = 1.5)
+
+# Counting the number of data points inside the prediction interval.
+count_inside_prediction = 0
+
+for (i in 1:43)
+{if (model_df_test_arranged$Lower_Bound_Predint[i] <= model_df_test_arranged$ln_Price[i] 
+     && model_df_test_arranged$ln_Price[i] <= model_df_test_arranged$Upper_Bound_Predint[i]) {
+  count_inside_prediction = count_inside_prediction + 1
+} else {
+  0
+}}
+
+count_inside_prediction
+count_inside_prediction / 43
+
+# Counting the number of data points with ln_Price larger than the prediction.
+count_bigger_than_prediction = 0
+
+for (i in 1:43)
+{if (model_df_test_arranged$Fitted[i] < model_df_test_arranged$ln_Price[i]) {
+  count_bigger_than_prediction = count_bigger_than_prediction + 1
+} else {
+  0
+}}
+
+count_bigger_than_prediction
+count_bigger_than_prediction / 43
