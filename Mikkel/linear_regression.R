@@ -1,80 +1,169 @@
 library(dplyr)
 
-### Multiple Linear Regression ###
+### General Functions ###
 
-# We base a model of simple multiple linear regression with the response 
-# variable:
-# Price
+residual_plots <- function(model){
+  # Plots the standard diagnostic plots.
+  par(mfrow = c(2, 2))
+  
+  plot(model, which = 1, caption = "", sub.caption = "")
+  plot(model, which = 2, caption = "", sub.caption = "")
+  plot(model, which = 3, caption = "", sub.caption = "")
+  # plot(mod_reduced, which = 4, caption = "", sub.caption = "")
+  plot(model, which = 5, caption = "", sub.caption = "")
+  # plot(mod_reduced, which = 6, caption = "", sub.caption = "")
+  
+  par(mfrow = c(1, 1))
+}
 
-# And explanatory variables:
-# Rooms, Ground_Area, Home_Area, Distance_School, Distance_City_Hall, Age, 
-# Wealthy, and Municipality
+extra_residual_plots <- function(model, data_frame){
+  # Plots the residuals against other variables.
+  residuals <- resid(model)
+  
+  par(mfrow = c(2, 2))
+  
+  plot(data_frame$Trend, residuals,
+       xlab = "Trend", ylab = "Residuals")
+  abline(0,0)
+  plot(data_frame$Rooms, residuals,
+       xlab = "Rooms", ylab = "Residuals")
+  abline(0,0)
+  plot(data_frame$Ground_Area, residuals,
+       xlab = "Ground Area", ylab = "Residuals")
+  abline(0,0)
+  plot(data_frame$Home_Area, residuals,
+       xlab = "Home Area", ylab = "Residuals")
+  abline(0,0)
+  
+  rm(residuals)
+  
+  par(mfrow = c(1, 1))
+}
 
+leverages_cooks_distance <- function(model){
+  # Finds the large leverage points.
+  leverages <- hatvalues(model)
+  large_leverage <- c()
+  
+  for (i in 1:length(leverages)){
+    if (leverages[i] > 3 * sum(leverages) / length(leverages)){
+      large_leverage <- append(large_leverage, i)
+    }
+  }
+  
+  print("The large leverage points are:")
+  print(large_leverage)
+  
+  # Finds the influencial points.
+  cooks_distance <- cooks.distance(model)
+  influencial <- c()
+  
+  for (i in 1:length(cooks_distance)){
+    if (cooks_distance[i] >= 0.5){
+      influencial <- append(influencial, i)
+    }
+  }
+  
+  print("The influencial points are:")
+  print(influencial)
+  
+  large_leverage_influencial <- append(large_leverage, influencial)
+  rm(large_leverage, influencial, i)
+  
+  return (large_leverage_influencial)
+}
+
+predictions <- function(model, data_frame, response, response_text){
+  # Defines the prediction, confidence intervals, and prediction intervals.
+  pred_confint = predict(model, data_frame, 
+                         interval = 'confidence')
+  pred_confint = as.data.frame(pred_confint)
+  
+  data_frame$Fitted <- pred_confint$fit
+  data_frame$Lower_Bound_Confint <- pred_confint$lwr
+  data_frame$Upper_Bound_Confint <- pred_confint$upr
+  
+  predint = predict(model, data_frame, 
+                    interval = 'prediction')
+  predint = as.data.frame(predint)
+  
+  data_frame$Lower_Bound_Predint <- predint$lwr
+  data_frame$Upper_Bound_Predint <- predint$upr
+  
+  # Plotting the confidence and prediction intervals against fitted values.
+  data_frame_arranged = arrange(data_frame, Fitted)
+  
+  data_frame_arranged[[response]]
+  plot(data_frame_arranged$Fitted, data_frame_arranged[[response]],
+       xlab = "Predictions", ylab = response_text)
+  
+  lines(data_frame_arranged$Fitted, data_frame_arranged$Fitted, 
+        col = "Red", lwd = 1.5)
+  lines(data_frame_arranged$Fitted, data_frame_arranged$Lower_Bound_Confint, 
+        col = "Green", lwd = 1.5)
+  lines(data_frame_arranged$Fitted, data_frame_arranged$Upper_Bound_Confint, 
+        col = "Green", lwd = 1.5)
+  lines(data_frame_arranged$Fitted, data_frame_arranged$Lower_Bound_Predint, 
+        col = "Blue", lwd = 1.5)
+  lines(data_frame_arranged$Fitted, data_frame_arranged$Upper_Bound_Predint, 
+        col = "Blue", lwd = 1.5)
+  
+  # Counting the number of data points inside the prediction interval.
+  count_inside_prediction = 0
+  
+  for (i in 1:length(data_frame_arranged[[response]]))
+  {if (data_frame_arranged$Lower_Bound_Predint[i] <= data_frame_arranged[[response]][i] 
+       && data_frame_arranged[[response]][i] <= data_frame_arranged$Upper_Bound_Predint[i]) {
+    count_inside_prediction = count_inside_prediction + 1
+  }}
+  
+  print("Count of how many actual values lie in the corresponding prediction interval:")
+  print(count_inside_prediction)
+  print(count_inside_prediction / length(data_frame_arranged[[response]]))
+  
+  # Counting the number of data points with response larger than the prediction.
+  count_bigger_than_prediction = 0
+  
+  for (i in 1:length(data_frame_arranged[[response]]))
+  {if (data_frame_arranged$Fitted[i] < data_frame_arranged[[response]][i]) {
+    count_bigger_than_prediction = count_bigger_than_prediction + 1
+  }}
+  
+  print("Count of how many actual values lie above the fitted line:")
+  print(count_bigger_than_prediction)
+  print(count_bigger_than_prediction / length(data_frame_arranged[[response]]))
+  
+  rm(pred_confint, predint, count_inside_prediction, count_bigger_than_prediction, i, data_frame_arranged)
+}
+
+
+
+
+
+### Model with Linear Regression ###
+
+# Constructing the full model with linear regression and response Price.
 mod_full <- lm(data = training_df, Price ~ Rooms + Ground_Area + Home_Area + 
                Distance_School + Distance_City_Hall + Age + Wealthy + 
                Municipality)
 summary(mod_full)
 
-# The above model is okay by R-squared values and F-test. 
-
-# Proceeding by removing the parameter associated with the highest p-value from 
-# the t-test and iterating we remove Distance_School, Distance_City_Hall, and 
-# Age. The stopping criteria is not no p-value exceeds a 5% significance level.
-
+# Reducing with backward elimination.
 mod_reduced = lm(data = training_df, Price ~ Rooms + Ground_Area + Home_Area + 
                  Wealthy + Municipality)
 summary(mod_reduced)
 
-# The above model is okay by R-squared values and F-test with almost no change
-# to the full model.
-
-# We test the reduction against the full model with F-test, which it passes.
+# F-test for the reduction.
 anova(mod_full, mod_reduced)
 
+# Model checking with different plots.
+residual_plots(mod_reduced)
 
-
-### Model Checking ###
-
-# We make different residual plots checking both the independence of residuals 
-# from fitted values, the distribution of the residuals, and the leverage and 
-# Cook's distance of the residuals.
-par(mfrow = c(2, 2))
-
-plot(mod_reduced, which = 1, caption = "", sub.caption = "")
-plot(mod_reduced, which = 2, caption = "", sub.caption = "")
-plot(mod_reduced, which = 3, caption = "", sub.caption = "")
-# plot(mod_reduced, which = 4, caption = "", sub.caption = "")
-plot(mod_reduced, which = 5, caption = "", sub.caption = "")
-# plot(mod_reduced, which = 6, caption = "", sub.caption = "")
-
-# We see that there are problems with the residual plot, since we seem to have
-# a trumpet shape, that is the variance of the residuals become larger for
-# larger fitted values. Also large standardized residuals deviate from the 
-# normal distribution. Thus something does not satisfy the assumptions of
-# general linear models.
-
-# Outliers from the leverages.
-leverages <- hatvalues(mod_reduced)
-
-for (i in 1:length(leverages)){
-  if (leverages[i] > 3 * sum(leverages) / length(leverages)){
-    print(i)
-  }
-}
-
-# Outliers from the Cook's distances.
-cooks_distance <- cooks.distance(mod_reduced)
-
-for (i in 1:length(cooks_distance)){
-  if (cooks_distance[i] >= 0.5){
-    print(i)
-  }
-}
-
+# Outliers from leverage and Cook's distance.
+leverages_cooks_distance(mod_reduced)
 
 # Clean
 rm(mod_full, mod_reduced)
-rm(leverages, cooks_distance, i)
 
 
 
@@ -82,100 +171,48 @@ rm(leverages, cooks_distance, i)
 
 ### Log Model ###
 
-# We base a model of simple multiple linear regression with the response 
-# variable:
-# ln_Price
-
-# And explanatory variables:
-# Rooms, Ground_Area, Home_Area, Distance_School, Distance_City_Hall, Age, 
-# Wealthy, and Municipality 
-
+# Constructing the full model with linear regression and response ln_Price.
 ln_mod_full <- lm(data = training_df, ln_Price ~ Rooms + Ground_Area + 
                   Home_Area + Distance_School + Distance_City_Hall + Age + 
                   Wealthy + Municipality)
 summary(ln_mod_full)
 
-# The above model is okay by R-squared values and F-test with R-squared values 
-# better than the linear regression model. 
-
-# Proceding as before we remove 
-
+# Reducing with backward elimination.
 ln_mod_reduced <- lm(data = training_df, ln_Price ~ Rooms + Ground_Area + 
                      Home_Area + Distance_City_Hall + Age + Wealthy + 
                      Municipality)
 summary(ln_mod_reduced)
 
-# The above model is okay by R-squared values and F-test with almost no change
-# to the full model.
-
-# We test the reduction against the full model with F-test, which it passes.
+# F-test for the reduction.
 anova(ln_mod_full, ln_mod_reduced)
 
-
-
-### Model Checking ###
-
-# We make different residual plots checking both the independence of residuals 
-# from fitted values, the distribution of the residuals, and the leverage and 
-# Cook's distance of the residuals.
-par(mfrow = c(2, 2))
-
-plot(ln_mod_reduced, which = 1, caption = "", sub.caption = "")
-plot(ln_mod_reduced, which = 2, caption = "", sub.caption = "")
-plot(ln_mod_reduced, which = 3, caption = "", sub.caption = "")
-# plot(ln_mod_reduced, which = 4, caption = "", sub.caption = "")
-plot(ln_mod_reduced, which = 5, caption = "", sub.caption = "")
-# plot(ln_mod_reduced, which = 6, caption = "", sub.caption = "")
-
-# The residual plot and other plots have improved monumentally.
+# Model checking with different plots.
+residual_plots(ln_mod_reduced)
 
 # Outliers from the residuals.
+outliers <- c()
 residuals <- resid(ln_mod_reduced)
 
 for (i in 1:length(residuals)){
   if (abs(residuals[i]) > 1){
-    print(i)
+    outliers <- append(outliers, i)
   }
 }
 
-# Outliers from the leverages.
-leverages <- hatvalues(ln_mod_reduced)
+outliers
 
-for (i in 1:length(leverages)){
-  if (leverages[i] > 3 * sum(leverages) / length(leverages)){
-    print(i)
-  }
-}
-
-# Outliers from the Cook's distances.
-cooks_distance <- cooks.distance(ln_mod_reduced)
-
-for (i in 1:length(cooks_distance)){
-  if (cooks_distance[i] >= 0.5){
-    print(i)
-  }
-}
+# Outliers from leverage and Cook's distance.
+outliers <- append(outliers, leverages_cooks_distance(ln_mod_reduced))
 
 # Residual plots with a selection of explanatory variables and Trend.
-par(mfrow = c(2, 2))
-plot(training_df$Trend, residuals,
-     xlab = "Trend", ylab = "Residuals")
-abline(0,0)
-plot(training_df$Rooms, residuals,
-     xlab = "Rooms", ylab = "Residuals")
-abline(0,0)
-plot(training_df$Ground_Area, residuals,
-     xlab = "Ground Area", ylab = "Residuals")
-abline(0,0)
-plot(training_df$Home_Area, residuals,
-     xlab = "Home Area", ylab = "Residuals")
-abline(0,0)
+extra_residual_plots(ln_mod_reduced, training_df)
 
 # The outliers are analysed. The points are removed and a new model developed.
-training_df[c(2, 4, 8, 17, 19, 29, 77, 116, 255, 471, 486, 545),]
+training_df[outliers,]
 
-training_df_no_outliers = training_df[-c(2, 4, 8, 17, 19, 29, 77, 116, 255, 471, 
-                                         486, 545),]
+training_df_no_outliers = training_df[-outliers,]
+
+rm(ln_mod_full, ln_mod_reduced)
 
 ln_mod_full_no_outliers <- lm(data = training_df_no_outliers, 
                                  ln_Price ~ Rooms + Ground_Area + Home_Area + 
@@ -183,72 +220,53 @@ ln_mod_full_no_outliers <- lm(data = training_df_no_outliers,
                                  Wealthy + Municipality)
 summary(ln_mod_full_no_outliers)
 
-# This improved the R-squared values. We reduced again.
+rm(outliers, residuals, i)
+
+# Reducing with backward elimination.
 
 ln_mod_reduced_no_outliers <- lm(data = training_df_no_outliers, 
                                  ln_Price ~ Home_Area + Distance_City_Hall + 
                                  Wealthy + Municipality)
 summary(ln_mod_reduced_no_outliers)
 
+# F-test for the reduction.
+
 anova(ln_mod_full_no_outliers, ln_mod_reduced_no_outliers)
 
+# Residual plot with respect to Trend.
 par(mfrow = c(1, 1))
+
 res_df <- data.frame(Residuals = residuals(ln_mod_reduced_no_outliers), Trend = training_df_no_outliers$Trend)
 ab <- coefficients(lm(data = res_df, Residuals ~ Trend))
 plot(res_df$Trend, res_df$Residuals, xlab="Trend", ylab="Residuals")
 abline(ab[1], ab[2], col="red")
+abline(0,0)
 rm(res_df, ab)
-# We get residual plots:
-par(mfrow = c(2, 2))
 
-plot(ln_mod_reduced_no_outliers, which = 1, caption = "", sub.caption = "")
-plot(ln_mod_reduced_no_outliers, which = 2, caption = "", sub.caption = "")
-plot(ln_mod_reduced_no_outliers, which = 3, caption = "", sub.caption = "")
-# plot(ln_mod_reduced_no_outliers, which = 4, caption = "", sub.caption = "")
-plot(ln_mod_reduced_no_outliers, which = 5, caption = "", sub.caption = "")
-# plot(ln_mod_reduced_no_outliers, which = 6, caption = "", sub.caption = "")
+# Model checking with different plots.
+residual_plots(ln_mod_reduced_no_outliers)
 
 # Outliers from the residuals.
+outliers <- c()
 residuals <- resid(ln_mod_reduced_no_outliers)
 
 for (i in 1:length(residuals)){
   if (abs(residuals[i]) > 1){
-    print(i)
+    outliers <- append(outliers, i)
   }
 }
 
-# Outliers from the leverages.
-leverages <- hatvalues(ln_mod_reduced_no_outliers)
+outliers
 
-for (i in 1:length(leverages)){
-  if (leverages[i] > 3 * sum(leverages) / length(leverages)){
-    print(i)
-  }
-}
+# Outliers from leverage and Cook's distance.
+outliers <- append(outliers, leverages_cooks_distance(ln_mod_reduced_no_outliers))
 
-# Outliers from the Cook's distances.
-cooks_distance <- cooks.distance(ln_mod_reduced_no_outliers)
-
-for (i in 1:length(cooks_distance)){
-  if (cooks_distance[i] >= 0.5){
-    print(i)
-  }
-}
+rm(outliers, residuals, i)
 
 # Residual plots with a selection of explanatory variables and Trend.
-par(mfrow = c(2, 2))
-plot(training_df_no_outliers$Trend, residuals,
-     xlab = "Trend", ylab = "Residuals")
-abline(0,0)
-plot(training_df_no_outliers$Rooms, residuals,
-     xlab = "Rooms", ylab = "Residuals")
-abline(0,0)
-plot(training_df_no_outliers$Ground_Area, residuals,
-     xlab = "Ground Area", ylab = "Residuals")
-abline(0,0)
-plot(training_df_no_outliers$Home_Area, residuals,
-     xlab = "Home Area", ylab = "Residuals")
-abline(0,0)
+extra_residual_plots(ln_mod_reduced_no_outliers, training_df_no_outliers)
+
+
 
 
 
@@ -256,120 +274,10 @@ abline(0,0)
 
 par(mfrow = c(1, 2))
 
-# Calculating and adding predictions of the training data based on the reduced 
-# log model together with prediction and confidence intervals.
-pred_confint = predict(ln_mod_reduced_no_outliers, training_df_no_outliers, 
-                       interval = 'confidence')
-pred_confint = as.data.frame(pred_confint)
+# Plot the predicted values for the training set with confidence and prediction intervals.
+predictions(ln_mod_reduced_no_outliers, training_df_no_outliers, "ln_Price", "Logarithm of Price")
 
-training_df_no_outliers$Fitted <- pred_confint$fit
-training_df_no_outliers$Lower_Bound_Confint <- pred_confint$lwr
-training_df_no_outliers$Upper_Bound_Confint <- pred_confint$upr
+# Plot the prediction values for the test set with confidence and prediction intervals.
+predictions(ln_mod_reduced_no_outliers, test_df, "ln_Price", "Logarithm of Price")
 
-predint = predict(ln_mod_reduced_no_outliers, training_df_no_outliers, 
-                  interval = 'prediction')
-predint = as.data.frame(predint)
-
-training_df_no_outliers$Lower_Bound_Predint <- predint$lwr
-training_df_no_outliers$Upper_Bound_Predint <- predint$upr
-
-# Plotting the confidence and prediction intervals against fitted values.
-training_df_no_outliers_arranged = arrange(training_df_no_outliers, Fitted)
-
-plot(data = training_df_no_outliers_arranged, ln_Price ~ Fitted,
-     xlab = "Predictions", ylab = "Logarithm of Price")
-
-lines(training_df_no_outliers_arranged$Fitted, training_df_no_outliers_arranged$Fitted, 
-      col = "Red", lwd = 1.5)
-lines(training_df_no_outliers_arranged$Fitted, training_df_no_outliers_arranged$Lower_Bound_Confint, 
-      col = "Green", lwd = 1.5)
-lines(training_df_no_outliers_arranged$Fitted, training_df_no_outliers_arranged$Upper_Bound_Confint, 
-      col = "Green", lwd = 1.5)
-lines(training_df_no_outliers_arranged$Fitted, training_df_no_outliers_arranged$Lower_Bound_Predint, 
-      col = "Blue", lwd = 1.5)
-lines(training_df_no_outliers_arranged$Fitted, training_df_no_outliers_arranged$Upper_Bound_Predint, 
-      col = "Blue", lwd = 1.5)
-
-# Counting the number of data points inside the prediction interval.
-count_inside_prediction = 0
-
-for (i in 1:length(training_df_no_outliers_arranged$ln_Price))
-{if (training_df_no_outliers_arranged$Lower_Bound_Predint[i] <= training_df_no_outliers_arranged$ln_Price[i] 
-     && training_df_no_outliers_arranged$ln_Price[i] <= training_df_no_outliers_arranged$Upper_Bound_Predint[i]) {
-  count_inside_prediction = count_inside_prediction + 1
-} else {
-  0
-}}
-
-count_inside_prediction
-count_inside_prediction / length(training_df_no_outliers_arranged$ln_Price)
-
-# We now replicate the above, but predicting the test data frame. First, we
-# calculate the predictions, and prediction and confidence intervals.
-pred_confint = predict(ln_mod_reduced_no_outliers, test_df, 
-                       interval = 'confidence')
-pred_confint = as.data.frame(pred_confint)
-
-test_df$Fitted <- pred_confint$fit
-test_df$Lower_Bound_Confint <- pred_confint$lwr
-test_df$Upper_Bound_Confint <- pred_confint$upr
-
-predint = predict(ln_mod_reduced_no_outliers, test_df, 
-                  interval = 'prediction')
-predint = as.data.frame(predint)
-
-test_df$Lower_Bound_Predint <- predint$lwr
-test_df$Upper_Bound_Predint <- predint$upr
-
-# Plotting the confidence and prediction intervals against fitted values.
-test_df_arranged = arrange(test_df, Fitted)
-
-plot(data = test_df_arranged, ln_Price ~ Fitted,
-     xlab = "Predictions", ylab = "Logarithm of Price")
-
-lines(test_df_arranged$Fitted, test_df_arranged$Fitted, 
-      col = "Red", lwd = 1.5)
-lines(test_df_arranged$Fitted, test_df_arranged$Lower_Bound_Confint, 
-      col = "Green", lwd = 1.5)
-lines(test_df_arranged$Fitted, test_df_arranged$Upper_Bound_Confint, 
-      col = "Green", lwd = 1.5)
-lines(test_df_arranged$Fitted, test_df_arranged$Lower_Bound_Predint, 
-      col = "Blue", lwd = 1.5)
-lines(test_df_arranged$Fitted, test_df_arranged$Upper_Bound_Predint, 
-      col = "Blue", lwd = 1.5)
-
-# Counting the number of data points inside the prediction interval.
-count_inside_prediction = 0
-
-for (i in 1:length(test_df_arranged$ln_Price))
-{if (test_df_arranged$Lower_Bound_Predint[i] <= test_df_arranged$ln_Price[i] 
-     && test_df_arranged$ln_Price[i] <= test_df_arranged$Upper_Bound_Predint[i]) {
-  count_inside_prediction = count_inside_prediction + 1
-} else {
-  0
-}}
-
-count_inside_prediction
-count_inside_prediction / length(test_df_arranged$ln_Price)
-
-# Counting the number of data points with ln_Price larger than the prediction.
-count_bigger_than_prediction = 0
-
-for (i in 1:length(test_df_arranged$ln_Price))
-{if (test_df_arranged$Fitted[i] < test_df_arranged$ln_Price[i]) {
-  count_bigger_than_prediction = count_bigger_than_prediction + 1
-} else {
-  0
-}}
-
-count_bigger_than_prediction
-count_bigger_than_prediction / length(test_df_arranged$ln_Price)
-
-
-# Clean
-rm(ln_mod_full, ln_mod_reduced, ln_mod_full_no_outliers, 
-   ln_mod_reduced_no_outliers)
-rm(training_df_no_outliers, training_df_no_outliers_arranged, test_df_arranged)
-rm(leverages, cooks_distance, residuals, pred_confint, predint, 
-   count_inside_prediction, count_bigger_than_prediction, i)
-
+rm(ln_mod_full_no_outliers, ln_mod_reduced_no_outliers)
