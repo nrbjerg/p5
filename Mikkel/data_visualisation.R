@@ -183,6 +183,7 @@ boxplot(data = df, Distance_City_Hall ~ Municipality,
 ### Distance Information ###
 
 # Comparison of Distance_School and Distance_City_Hall:
+par(mfrow = c(1, 1))
 plot(data = df, Distance_School ~ Distance_City_Hall,
      xlab = "Distance to City Hall", ylab = "Distance to School")
 LM = lm(data = df,

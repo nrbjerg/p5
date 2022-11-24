@@ -4,7 +4,7 @@ library(dplyr)
 
 residual_plots <- function(model){
   # Plots the standard diagnostic plots.
-  par(mfrow = c(2, 2))
+  par(mfrow = c(1, 2))
   
   plot(model, which = 1, caption = "", sub.caption = "")
   plot(model, which = 2, caption = "", sub.caption = "")
