@@ -1,4 +1,5 @@
 library(dplyr)
+library(Metrics)
 
 ### General Functions ###
 
@@ -132,6 +133,9 @@ predictions <- function(model, data_frame, response, response_text){
   print("Count of how many actual values lie above the fitted line:")
   print(count_bigger_than_prediction)
   print(count_bigger_than_prediction / length(data_frame_arranged[[response]]))
+  
+  print("Root Mean Square Error:")
+  print(rmse(data_frame_arranged[[response]], data_frame_arranged$Fitted))
   
   rm(pred_confint, predint, count_inside_prediction, count_bigger_than_prediction, i, data_frame_arranged)
 }
