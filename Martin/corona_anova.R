@@ -11,13 +11,11 @@ f <- function(indicated_year) {
   }
   })))
 }
-df$Corona_2020 <- f(2020)
-df$Corona_2021 <- f(2021)
-df$Corona_2022 <- f(2022)
+df$Corona <- f(2020)
 # We start by removing outliers using the full model
 full <- lm(data = df,ln_Price ~ Rooms + Ground_Area + 
                     Home_Area + Distance_School + Distance_City_Hall +
-                    Age + Wealthy + Municipality +Corona_2020+ Corona_2021 + Corona_2022 + Trend)
+                    Age + Wealthy + Municipality + Corona + Trend)
 summary(full) 
 plot(full) 
 
@@ -26,7 +24,7 @@ df <- remove_points_with_to_high_leverage(full, df)
 
 full <- lm(data = df,ln_Price ~ Rooms + Ground_Area + 
                     Home_Area + Distance_School + Distance_City_Hall +
-                    Age + Wealthy + Municipality + Corona_2021 + Corona_2022 + Trend)
+                    Age + Wealthy + Municipality + Corona + Corona+ Trend)
 # Indicates that we mightwant to remove rooms, ground_area, distance_school & age
 summary(full) 
 
@@ -34,7 +32,7 @@ summary(full)
 # We see that we may remove rooms, ground_area, distance_school, age
 reduced <- lm(data = df,ln_Price ~  
                 Home_Area + Distance_City_Hall +
-                Wealthy + Municipality + Corona_2021 + Trend)
+                Wealthy + Municipality + Corona + Trend)
 summary(reduced) 
 
 anova(reduced, full) 
