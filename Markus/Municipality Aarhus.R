@@ -72,16 +72,16 @@ summary(GLMrem_Aarhus_red5)
 anova(GLMrem_Aarhus_Full,GLMrem_Aarhus_red5)
 
 #Plot of Residuels
-res_Aarhus <- resid(GLMrem_Aarhus_red4)
+res_Aarhus <- resid(GLMrem_Aarhus_red5)
 plot(fitted(GLMrem_Aarhus_red5), res_Aarhus,
      xlab = "Fitted Values", ylab = "Residuals")
 abline(0,0)
 
 #Plot of Normal QQ-plot
-plot(GLMrem_Aarhus_red5,2)
+plot(GLMrem_Aarhus_red5,2,caption='')
 
 # Smooth density plot:
-plot(density(dfrem_Aarhus$ln_Price))
+plot(density(dfrem_Aarhus$ln_Price),main='',xlab = 'ln_Price')
 
 
 

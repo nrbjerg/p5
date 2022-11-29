@@ -71,12 +71,12 @@ plot(fitted(GLMrem_Copenhagen_red4), res_Copenhagen,
      xlab = "Fitted Values", ylab = "Residuals")
 abline(0,0)
 
-#Plot of normal Q-Q plot
-plot(GLMrem_Copenhagen_red4,2)
 
+#Plot of normal Q-Q plot
+plot(GLMrem_Copenhagen_red4,2,caption = '')
 
 # Smooth density plot:
-plot(density(dfrem_Copenhagen$ln_Price))
+plot(density(dfrem_Copenhagen$ln_Price),main='',xlab='ln_Price')
 
 
 
