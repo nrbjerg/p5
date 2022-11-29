@@ -22,8 +22,6 @@ table(df$Voting_Area)
 table(df$Parish[df$Municipality == 'Copenhagen'])
 table(df$Voting_Area[df$Parish == 'Husumvold'])
 
-# There is total inclusion of the geographical categories.
-
 # Distribution of data points in wealthy/non-wealthy areas:
 table(df$Wealthy)
 
@@ -33,8 +31,6 @@ boxplot(data = df, Wealthy ~ Municipality,
 boxplot(data = df, Wealthy ~ Parish,
         xlab = "Parish", ylab = "Wealthy")
 
-# Wealthy is dependent on Parish.
-
 # Plotting the distribution of the Price restricted to municipalities:
 boxplot(data = df, Price ~ Municipality,
         xlab = "Municipality", ylab = "Price")
@@ -42,16 +38,11 @@ boxplot(data = df, Price ~ Municipality,
         xlab = "Municipality", ylab = "Price",
         outline = F)
 
-# We see a clear difference in the distribution of the Price in each 
-# municipality.
-
-# The means of Price in each municipality illustrates this:
+# The means of Price in each municipality:
 mean(df$Price[df$Municipality == 'Copenhagen'])
 mean(df$Price[df$Municipality == 'Aarhus'])
 mean(df$Price[df$Municipality == 'Odense'])
 mean(df$Price[df$Municipality == 'Aalborg'])
-
-# The larger the city, the larger the mean.
 
 
 
@@ -68,8 +59,7 @@ plot(density(df$Rooms))
 plot(data = df, Big_Ground ~ Ground_Area)
 cor(df$Big_Ground, df$Ground_Area)
 
-# We see total dependence of Big_Ground on Ground_Area. The maximum of the
-# small grounds and minimum of the big grounds illustrate this:
+# Descriptions of the Ground_Area partitioned by Big_Ground:
 summary(df$Ground_Area[df$Big_Ground == 0])
 summary(df$Ground_Area[df$Big_Ground == 1])
 
@@ -99,9 +89,6 @@ abline(LM, col = "red"); summary(LM)
 # Calculating the correlation:
 cor(df_subset$Home_Area, df_subset$Ground_Area)
 
-# There is more correlation between the variables when the abnormal values are 
-# removed.
-
 # Comparison of Home_Area and Rooms:
 plot(data = df, Rooms ~ Home_Area,
      xlab = "Home Area", ylab = "Rooms")
@@ -123,9 +110,6 @@ abline(LM, col = "red"); summary(LM)
 # Calculating the correlation:
 cor(df_subset$Rooms, df_subset$Home_Area)
 
-# There is more correlation between the variables when the abnormal values are 
-# removed.
-
 
 
 
@@ -140,8 +124,7 @@ boxplot(data = df, Price ~ Wealthy,
         ylab='Price',
         outline = F)
 
-# Wealthy areas cover all of the extreme sales. There is a clear difference in 
-# pricepoints.
+# Correlation between Price and Wealthy:
 cor(df$Price, df$Wealthy)
 
 
@@ -190,7 +173,7 @@ LM = lm(data = df,
         Distance_School ~ Distance_City_Hall)
 abline(LM, col = "red"); summary(LM)
 
-# No trend is seen. Calculate the correlation:
+# Calculate the correlation:
 cor(df$Distance_School, df$Distance_City_Hall)
 
 # Comparison of Distance_School and Price:
@@ -236,27 +219,56 @@ boxplot(data = df, Distance_City_Hall ~ Municipality,
         xlab = "", 
         ylab = "Distance City Hall")
 
-# The distance variables do not seem all that much dependent on Price and 
-# Wealthy with the exception being that wealthy areas tend to be closer to the 
-# city hall.
-
 # Testing relation between size variables and distance variables:
 df_subset <- subset(subset(df, Home_Area < 800), Ground_Area <10000)
 plot(data = df_subset, Home_Area ~ Distance_City_Hall)
 
-# No relation seems likely.
+# Boxplots of Distance_School partitioned by Wealthy and Municipality:
+par(mfrow = c(1, 1))
+NW <- subset(df, Wealthy == 0)$Distance_School
+W <- subset(df, Wealthy == 1)$Distance_School
+NW_O <- subset(df, Wealthy == 0 & Municipality == "Odense")$Distance_School
+W_O <- subset(df, Wealthy == 1 & Municipality == "Odense")$Distance_School
+NW_AL <- subset(df, Wealthy == 0 & Municipality == "Aalborg")$Distance_School
+W_AL <- subset(df, Wealthy == 1 & Municipality == "Aalborg")$Distance_School
+NW_AR <- subset(df, Wealthy == 0 & Municipality == "Aarhus")$Distance_School
+W_AR <- subset(df, Wealthy == 1 & Municipality == "Aarhus")$Distance_School
+NW_C <- subset(df, Wealthy == 0 & Municipality == "Copenhagen")$Distance_School
+W_C <- subset(df, Wealthy == 1 & Municipality == "Copenhagen")$Distance_School
 
-par(mfrow = c(1, 2))
-boxplot(data = df, Distance_School ~ Wealthy,
-        xlab = "Wealthy", ylab = "Distance School")
-boxplot(data = df, Distance_City_Hall ~ Wealthy,
-        xlab = "Wealthy", ylab = "Distance City Hall")
+boxplot(NW, W, NW_O, W_O, NW_AL, W_AL, NW_AR, W_AR, NW_C, W_C,
+        xaxt = "n",
+        ylab = "Distance School", 
+        col = c("Red", "Blue"))
+axis(1, at = c(1.5, 3.5, 5.5, 7.5, 9.5), labels = c("General", "Odense", "Aalborg", "Aarhus", "Copenhagen"))
+legend(x = "topright", legend = c("Non-wealthy", "Wealthy"), col = c("Red", "Blue"), 
+       lty = rep(1, 2), cex = 1, box.lty = 1)
+
+# Boxplots of Distance_City_Hall partitioned by Wealthy and Municipality:
+NW <- subset(df, Wealthy == 0)$Distance_City_Hall
+W <- subset(df, Wealthy == 1)$Distance_City_Hall
+NW_O <- subset(df, Wealthy == 0 & Municipality == "Odense")$Distance_City_Hall
+W_O <- subset(df, Wealthy == 1 & Municipality == "Odense")$Distance_City_Hall
+NW_AL <- subset(df, Wealthy == 0 & Municipality == "Aalborg")$Distance_City_Hall
+W_AL <- subset(df, Wealthy == 1 & Municipality == "Aalborg")$Distance_City_Hall
+NW_AR <- subset(df, Wealthy == 0 & Municipality == "Aarhus")$Distance_City_Hall
+W_AR <- subset(df, Wealthy == 1 & Municipality == "Aarhus")$Distance_City_Hall
+NW_C <- subset(df, Wealthy == 0 & Municipality == "Copenhagen")$Distance_City_Hall
+W_C <- subset(df, Wealthy == 1 & Municipality == "Copenhagen")$Distance_City_Hall
+
+boxplot(NW, W, NW_O, W_O, NW_AL, W_AL, NW_AR, W_AR, NW_C, W_C,
+        xaxt = "n",
+        ylab = "Distance City Hall", 
+        col = c("Red", "Blue"))
+axis(1, at = c(1.5, 3.5, 5.5, 7.5, 9.5), labels = c("General", "Odense", "Aalborg", "Aarhus", "Copenhagen"))
+legend(x = "topright", legend = c("Non-wealthy", "Wealthy"), col = c("Red", "Blue"), 
+       lty = rep(1, 2), cex = 1, box.lty = 1)
 
 
 
 
 
 # Cleaning
-rm(LM, df_subset)
+rm(LM, df_subset, NW, W, NW_O, W_O, NW_AL, W_AL, NW_AR, W_AR, NW_C, W_C)
 
 # rm(list=ls())
