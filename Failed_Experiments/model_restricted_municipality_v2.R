@@ -1,4 +1,4 @@
-### Dividing the Data Set in Municipalities ###
+### Dividing the Dataset in Municipalities ###
 
 df_copenhagen <- subset(training_df, Municipality == 'Copenhagen')
 df_aarhus <- subset(training_df, Municipality == 'Aarhus')

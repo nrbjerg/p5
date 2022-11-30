@@ -1,13 +1,13 @@
-#load(cityhomes.Rda) hej
+#load(cityhomes.Rda)
 CH <- cityhomes
 ch <- na.omit(CH)
 
-Vel <- split(x = ch, f = ch$Velhavende )
+Vel <- split(x = ch, f = ch$Velhavende)
 V0 <- Vel$'0'
 V1 <- Vel$'1'
 
-P0 <- split(x= V0, f = V0$KommuneNavn)
-P1 <- split(x = V1, f= V1$KommuneNavn)
+P0 <- split(x = V0, f = V0$KommuneNavn)
+P1 <- split(x = V1, f = V1$KommuneNavn)
 
 
 Pal <- split(x = ch, f = ch$KommuneNavn)
@@ -195,16 +195,16 @@ plot(log(agO1), psO1) #Voksende
 #Overvej opdeling
 
 plot(agAA, psAA) #ingen tydelig sammenhæng
-abline(lm(psAA ~agAA), col="red")
+abline(lm(psAA ~ agAA), col = "red")
 plot(agAA0, psAA0) #ingen tydlig sammenhæng
 plot(agAA1, psAA1) #svag voksende sammenhæng
 #Overvej opdeling
 
 plot(ag0, ps0) #svagt aftagende/ingen tydelig sammenhæng
-abline(lm(ps0 ~ag0), col="red")
+abline(lm(ps0 ~ ag0), col = "red")
 
 plot(ag1, ps1) #voksende
-abline(lm(ps1 ~ag1), col = "red")
+abline(lm(ps1 ~ ag1), col = "red")
 
 
 
@@ -220,7 +220,7 @@ plot(eaO, psO)#voksende
 plot(eaAA, psAA) #voksende
 
 plot(ea0, ps0) #voksende
-abline(lm(ps0 ~ea0), col = "red")
+abline(lm(ps0 ~ ea0), col = "red")
 
 plot(ea1, ps1)#voksende
 
@@ -234,7 +234,7 @@ plot(dsC1, psC1) #Svagt voksende
 #Overvej opdeling
 
 plot(dsA, psA) # voksne
-abline( lm(psA ~dsA), col="red")
+abline(lm(psA ~ dsA), col = "red")
 plot(dsA0, psA0) #ingen tydelig sammenhæng
 plot(dsA1, psA1) #voksende
 #ingen grund til opdeling
@@ -245,7 +245,7 @@ plot(dsO1, psO1) #svagt voksende
 #overvej opdeling
 
 plot(dsAA, psAA)
-abline(lm(psAA ~ dsAA), col= "red") #svagt aftagende/ingen tydelig sammenhæng
+abline(lm(psAA ~ dsAA), col = "red") #svagt aftagende/ingen tydelig sammenhæng
 plot(dsAA0, psAA0)
 plot(dsAA1, psAA1)
 #ingen grund til opdeling
@@ -253,7 +253,7 @@ plot(dsAA1, psAA1)
 plot(ds0, ps0)#aftagende
 
 plot(ds1, ps1) #svagt aftagende/ingen tydelig sammenhæng
-abline(lm(ps1 ~ds1), col = "red")
+abline(lm(ps1 ~ ds1), col = "red")
 
 
 
@@ -282,7 +282,7 @@ plot(drAA1, psAA1)
 plot(dr0, ps0)# aftagende
 
 plot(dr1, ps1) # ingen tydelig sammenhæng
-abline(lm(ps1 ~dr1), col = "red")
+abline(lm(ps1 ~ dr1), col = "red")
 
 
 
@@ -318,10 +318,4 @@ abline(lm(ps0 ~ al0), col = "red")
 
 plot(al1, ps1) #svagt voksende/ ingen tydelig sammenhæng
 abline(lm(ps1 ~ al1), col = "red")
-
-
-
-
-
-
 

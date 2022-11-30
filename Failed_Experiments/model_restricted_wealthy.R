@@ -1,4 +1,4 @@
-### Dividing the Data Set in Municipalities ###
+### Dividing the Dataset in Municipalities ###
 
 df_wealthy_1 <- subset(df, Wealthy == 1)
 df_wealthy_0 <- subset(df, Wealthy == 0)

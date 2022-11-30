@@ -1,9 +1,9 @@
-# Create data frames
+# Create data frames.
 df_w <- subset(df, Wealthy==1)
 df_n <- subset(df, Wealthy==0)
 rm(df)
 
-# Create models (NOTE THAT WE OFC DONT HAVE WEALTHY)
+# Create models (NOTE THAT WE DO NOT HAVE WEALTHY).
 mod_w <- lm(data =df_w, ln_Price ~
   Rooms + Ground_Area + Home_Area + Distance_School + 
     Distance_City_Hall + Age + Municipality)
@@ -24,12 +24,12 @@ mod_n <- lm(data =df_n, ln_Price ~
 
 plot(mod_w)
 plot(mod_n)
-# Both look good
+# Both look good.
 
 summary(mod_w)
 summary(mod_n)
 
-# We start by reducing the wealthy model
+# We start by reducing the wealthy model.
 reduced_w <- lm(data = df_w, ln_Price ~ Home_Area + Distance_City_Hall + Age + Municipality)
 anova(mod_w, reduced_w) # 0.1077
 summary(reduced_w)

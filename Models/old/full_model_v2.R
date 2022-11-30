@@ -373,15 +373,3 @@ for (i in test_df$Index)
 }}
 
 count_inside_prediction/43
-
-
-
-h = hatvalues(ln_mod_reduced)
-for (i in 1:820){if (h[i]>0.09){print(h[i],i)}}
-h[c(4, 8, 116, 505, 545)]
-
-cd = cooks.distance(ln_mod_reduced)
-for (i in 1:820){if (cd[i]>0.1){print(cd[i],i)}}
-
-cd
-h[c(4, 8, 116, 505, 545)]

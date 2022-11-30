@@ -1,5 +1,5 @@
 library(dplyr)
-par(mfrow=c(1,2))
+par(mfrow = c(1, 2))
 
 ### Dividing the Data Set in Municipalities ###
 training_df_no_outliers = training_df[-c(2, 4, 8, 17, 19, 29, 77, 116, 255, 471,
@@ -17,23 +17,23 @@ GLM_Aarhus_Full <- lm(data = df_Aarhus,
 summary(GLM_Aarhus_Full)
 plot(GLM_Aarhus_Full)
 
-#Remove variables due to Cook's distance and leverage
-remove_points_with_to_high_leverage <- function (mod, df) {
+# Remove variables due to Cook's distance and leverage.
+remove_points_with_too_high_leverage <- function (mod, df) {
   k <- length(coefficients(mod))
   border <- 3 * k / nrow(df)
-  indicies_to_drop <- c()
+  indices_to_drop <- c()
   leverages <- hatvalues(mod)
   for (row in 1:nrow(df)) {
     if (leverages[row] > border) {
-      indicies_to_drop <- append(row, indicies_to_drop)
+      indices_to_drop <- append(row, indices_to_drop)
     }
   }
-  print("Removing indicies with leverages:")
-  print(leverages[indicies_to_drop])
-  return(df[-indicies_to_drop,])
+  print("Removing indices with leverages:")
+  print(leverages[indices_to_drop])
+  return(df[-indices_to_drop,])
 }
 
-dfrem_Aarhus <- remove_points_with_to_high_leverage(GLM_Aarhus_Full,df_Aarhus)
+dfrem_Aarhus <- remove_points_with_too_high_leverage(GLM_Aarhus_Full,df_Aarhus)
 GLMrem_Aarhus_Full <- lm(data = dfrem_Aarhus,
                            ln_Price ~ Rooms + Ground_Area + Home_Area +
                              Distance_School + Distance_City_Hall + Age + Wealthy)
@@ -45,51 +45,50 @@ GLMrem_Aarhus_red1 <- lm(data = dfrem_Aarhus,
                             ln_Price ~ Rooms + Home_Area +
                               Distance_School + Distance_City_Hall + Age + Wealthy)
 summary(GLMrem_Aarhus_red1)
-anova(GLMrem_Aarhus_Full,GLMrem_Aarhus_red1)
+anova(GLMrem_Aarhus_Full, GLMrem_Aarhus_red1)
 
 GLMrem_Aarhus_red2 <- lm(data = dfrem_Aarhus,
                             ln_Price ~ Rooms + Home_Area +
                               Distance_School + Distance_City_Hall + Wealthy)
 summary(GLMrem_Aarhus_red2)
-anova(GLMrem_Aarhus_Full,GLMrem_Aarhus_red2)
+anova(GLMrem_Aarhus_Full, GLMrem_Aarhus_red2)
 
 GLMrem_Aarhus_red3 <- lm(data = dfrem_Aarhus,
                             ln_Price ~ Rooms + Home_Area +
                               Distance_City_Hall + Wealthy)
 summary(GLMrem_Aarhus_red3)
-anova(GLMrem_Aarhus_Full,GLMrem_Aarhus_red3)
+anova(GLMrem_Aarhus_Full, GLMrem_Aarhus_red3)
 
 GLMrem_Aarhus_red4 <- lm(data = dfrem_Aarhus,
                             ln_Price ~ Rooms + Home_Area +
                             Wealthy)
 summary(GLMrem_Aarhus_red4)
-anova(GLMrem_Aarhus_Full,GLMrem_Aarhus_red4)
+anova(GLMrem_Aarhus_Full, GLMrem_Aarhus_red4)
 
 GLMrem_Aarhus_red5 <- lm(data = dfrem_Aarhus,
                          ln_Price ~ Home_Area +
                            Wealthy)
 summary(GLMrem_Aarhus_red5)
-anova(GLMrem_Aarhus_Full,GLMrem_Aarhus_red5)
+anova(GLMrem_Aarhus_Full, GLMrem_Aarhus_red5)
 
-#Plot of Residuels
+# Plot of Residuals:
 res_Aarhus <- resid(GLMrem_Aarhus_red5)
 plot(fitted(GLMrem_Aarhus_red5), res_Aarhus,
      xlab = "Fitted Values", ylab = "Residuals")
 abline(0,0)
 
-#Plot of Normal QQ-plot
-plot(GLMrem_Aarhus_red5,2,caption='')
+# Plot of Normal QQ-plot:
+plot(GLMrem_Aarhus_red5, 2, caption = '')
 
 # Smooth density plot:
-plot(density(dfrem_Aarhus$ln_Price),main='',xlab = 'ln_Price')
+plot(density(dfrem_Aarhus$ln_Price), main = '', xlab = 'ln_Price')
 
 
 
 
-#Prediction
+# Prediction.
 pred_confint = as.data.frame(predict(GLMrem_Aarhus_red5, df_Aarhus,
                        interval = 'confidence'))
-
 
 df_Aarhus$Fitted <- pred_confint$fit
 df_Aarhus$Lower_Bound_Confint <- pred_confint$lwr

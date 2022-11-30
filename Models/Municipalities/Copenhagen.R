@@ -1,7 +1,7 @@
 library(dplyr)
-par(mfrow=c(1,2))
+par(mfrow = c(1, 2))
 
-### Dividing the Data Set in Municipalities ###
+### Dividing the Dataset in Municipalities ###
 training_df_no_outliers = training_df[-c(2, 4, 8, 17, 19, 29, 77, 116, 255, 471,
                                          486, 545),]
 df_Copenhagen <- subset(training_df_no_outliers, Municipality == 'Copenhagen')
@@ -17,73 +17,70 @@ GLM_Copenhagen_Full <- lm(data = df_Copenhagen,
 summary(GLM_Copenhagen_Full)
 plot(GLM_Copenhagen_Full)
 
-#Remove variables due to Cook's distance and leverage
-remove_points_with_to_high_leverage <- function (mod, df) {
+# Remove variables due to Cook's distance and leverage.
+remove_points_with_too_high_leverage <- function (mod, df) {
   k <- length(coefficients(mod))
   border <- 3 * k / nrow(df)
-  indicies_to_drop <- c()
+  indices_to_drop <- c()
   leverages <- hatvalues(mod)
   for (row in 1:nrow(df)) {
     if (leverages[row] > border) {
-      indicies_to_drop <- append(row, indicies_to_drop)
+      indices_to_drop <- append(row, indices_to_drop)
     }
   }
-  print("Removing indicies with leverages:")
-  print(leverages[indicies_to_drop])
-  return(df[-indicies_to_drop,])
+  print("Removing indices with leverages:")
+  print(leverages[indices_to_drop])
+  return(df[-indices_to_drop,])
 }
 
-dfrem_Copenhagen <- remove_points_with_to_high_leverage(GLM_Copenhagen_Full,df_Copenhagen)
+dfrem_Copenhagen <- remove_points_with_too_high_leverage(GLM_Copenhagen_Full, df_Copenhagen)
 GLMrem_Copenhagen_Full <- lm(data = dfrem_Copenhagen,
                          ln_Price ~ Rooms + Ground_Area + Home_Area +
                            Distance_School + Distance_City_Hall + Age + Wealthy)
 summary(GLMrem_Copenhagen_Full)
 plot(GLMrem_Copenhagen_Full)
 
-#Reduce the model due to F-test and Pr(>t)
+# Reduce the model due to F-test and Pr(>t).
 GLMrem_Copenhagen_red1 <- lm(data = dfrem_Copenhagen,
                          ln_Price ~ Rooms + Ground_Area + Home_Area +
                            Distance_School + Age + Wealthy)
 summary(GLMrem_Copenhagen_red1)
-anova(GLMrem_Copenhagen_Full,GLMrem_Copenhagen_red1)
+anova(GLMrem_Copenhagen_Full, GLMrem_Copenhagen_red1)
 
 GLMrem_Copenhagen_red2 <- lm(data = dfrem_Copenhagen,
                            ln_Price ~ Rooms + Home_Area +
                                Distance_School + Age + Wealthy)
 summary(GLMrem_Copenhagen_red2)
-anova(GLMrem_Copenhagen_Full,GLMrem_Copenhagen_red2)
+anova(GLMrem_Copenhagen_Full, GLMrem_Copenhagen_red2)
 
 GLMrem_Copenhagen_red3 <- lm(data = dfrem_Copenhagen,
                              ln_Price ~ Home_Area +
                                Distance_School + Age + Wealthy)
 summary(GLMrem_Copenhagen_red3)
-anova(GLMrem_Copenhagen_Full,GLMrem_Copenhagen_red3)
+anova(GLMrem_Copenhagen_Full, GLMrem_Copenhagen_red3)
 
 GLMrem_Copenhagen_red4 <- lm(data = dfrem_Copenhagen,
                              ln_Price ~ Home_Area + Age + Wealthy)
 summary(GLMrem_Copenhagen_red4)
-anova(GLMrem_Copenhagen_Full,GLMrem_Copenhagen_red4)
+anova(GLMrem_Copenhagen_Full, GLMrem_Copenhagen_red4)
 
-
-#Plot of Residuels
+# Plot of Residuals
 res_Copenhagen <- resid(GLMrem_Copenhagen_red4)
 plot(fitted(GLMrem_Copenhagen_red4), res_Copenhagen,
      xlab = "Fitted Values", ylab = "Residuals")
 abline(0,0)
 
-
 #Plot of normal Q-Q plot
-plot(GLMrem_Copenhagen_red4,2,caption = '')
+plot(GLMrem_Copenhagen_red4, 2, caption = '')
 
 # Smooth density plot:
-plot(density(dfrem_Copenhagen$ln_Price),main='',xlab='ln_Price')
+plot(density(dfrem_Copenhagen$ln_Price), main = '', xlab = 'ln_Price')
 
 
 
-#Prediction
+# Prediction.
 pred_confint = as.data.frame(predict(GLMrem_Copenhagen_red4, df_Copenhagen,
                                      interval = 'confidence'))
-
 
 df_Copenhagen$Fitted <- pred_confint$fit
 df_Copenhagen$Lower_Bound_Confint <- pred_confint$lwr
@@ -139,8 +136,8 @@ predint = predict(GLMrem_Copenhagen_red4, test_df_Copenhagen,
                   interval = 'prediction')
 predint = as.data.frame(predint)
 
-test_df$Lower_Bound_Predint <- predint$lwr
-test_df$Upper_Bound_Predint <- predint$upr
+test_df_Copenhagen$Lower_Bound_Predint <- predint$lwr
+test_df_Copenhagen$Upper_Bound_Predint <- predint$upr
 
 # Plotting the confidence and prediction intervals against fitted values.
 test_df_arranged = arrange(test_df_Copenhagen, Fitted)
