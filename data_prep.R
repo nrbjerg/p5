@@ -5,7 +5,7 @@ df <- cityhomes # Shorthand from now on.
 df$Salgsmaaned_encoded <- as.numeric(factor(df$Salgsmaaned, levels = unique(df$Salgsmaaned), exclude = NULL))
 df$Fin_Trend <- df$Trend +  1/12 * df$Salgsmaaned_encoded
 
-# Convert column names to english
+# Convert column names to english.
 df$Price <- df$Pris_Salg
 df$Rooms <- df$Ejd_AntalRum
 df$Year <- df$Salgsaar
@@ -26,7 +26,7 @@ df <- df[,!(names(df) %in% drop)]
 #install.packages("stringr")
 library(stringr)
 
-# Convert the data point strings to english 
+# Convert the data point strings to english.
 df$Municipality <- str_replace(df$Municipality, "København", "Copenhagen")
 
 df$Parish <- str_replace(df$Parish , "å", "aa")
@@ -49,35 +49,28 @@ df$Month <- str_replace(df$Month, "Juni", "June")
 df$Month <- str_replace(df$Month, "Juli", "July")
 df$Month <- str_replace(df$Month, "Oktober", "October")
 
-
-# Remove missing datapoints
-
+# Remove missing datapoints.
 df <- df[-c(28, 113, 115, 560, 727, 806, 66, 271, 493), ]
 
-
-# Adding columns by taking the natural logarithm
-
+# Adding columns by taking the natural logarithm.
 df$ln_Price <- log(df$Price)
 df$ln_Home_Area <- log(df$Home_Area)
 df$ln_Ground_Area <- log(df$Ground_Area)
 df$ln_Rooms <- log(df$Rooms)
 df$ln_Distance_School <- log(df$Distance_School)
 df$ln_Distance_City_Hall <- log(df$Distance_City_Hall)
-df$ln_Age <- log(df$Age) # Beware of inf values
+df$ln_Age <- log(df$Age) # Beware of inf values.
 
-
-# Saving
-
+# Saving.
 test_df <- subset(df, Year == 2022)
 training_df <- subset(df, Year != 2022)
 
-save(cityhomes, file = "cityhomes.Rda")
-save(df, file = "data_frame.Rda")
-save(training_df, file = "training.Rda")
-save(test_df, file = "test.Rda")
+#save(cityhomes, file = "cityhomes.Rda")
+#save(df, file = "data_frame.Rda")
+#save(training_df, file = "training.Rda")
+#save(test_df, file = "test.Rda")
 
-
-# Finally the following function allows us to compute the new indicies
+# Finally the following function allows us to compute the new indices.
 compute_new_index <- function (old_index, df) {
   for (row in 1:nrow(df)) {
     if (df$Index[row] == old_index) {
@@ -87,19 +80,19 @@ compute_new_index <- function (old_index, df) {
   return("Couldn't compute new index.")
 }
 
-remove_points_with_to_high_leverage <- function (mod, data_frame) {
+remove_points_with_too_high_leverage <- function (mod, data_frame) {
   k <- length(coefficients(mod))
   cutoff <- 3 * k / nrow(data_frame) 
   print("Cutoff is: ")
   print(cutoff)
-  indicies_to_drop <- c()
+  indices_to_drop <- c()
   leverages <- hatvalues(mod)
   for (row in 1:nrow(data_frame)) {
     if (leverages[row] > cutoff) {
-      indicies_to_drop <- append(row, indicies_to_drop)
+      indices_to_drop <- append(row, indices_to_drop)
     }
   }
-  print("Removing indicies with leverages:")
-  print(leverages[indicies_to_drop])
-  return(data_frame[-indicies_to_drop, ])
+  print("Removing indices with leverages:")
+  print(leverages[indices_to_drop])
+  return(data_frame[-indices_to_drop, ])
 }
