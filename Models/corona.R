@@ -58,3 +58,5 @@ sqrt(max(e)/e)
 # Output:
 #  [1]  1.000000  2.227809  2.268016  2.454677  3.916728  4.291657  6.391971  9.420670 18.389007
 # Conclusion: This does not seem to be that bad.
+confint(reduced, 'Corona', level=0.95)
+confint(reduced, 'Trend', level=0.95)
