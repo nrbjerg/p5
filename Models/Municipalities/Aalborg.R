@@ -16,22 +16,6 @@ GLM_Aalborg_Full <- lm(data = df_Aalborg,
 summary(GLM_Aalborg_Full)
 plot(GLM_Aalborg_Full)
 
-# Remove variables due to Cook's distance and leverage.
-remove_points_with_too_high_leverage <- function (mod, df) {
-  k <- length(coefficients(mod))
-  border <- 3 * k / nrow(df)
-  indices_to_drop <- c()
-  leverages <- hatvalues(mod)
-  for (row in 1:nrow(df)) {
-    if (leverages[row] > border) {
-      indices_to_drop <- append(row, indices_to_drop)
-    }
-  }
-  print("Removing indices with leverages:")
-  print(leverages[indices_to_drop])
-  return(df[-indices_to_drop,])
-}
-
 dfrem_Aalborg <- remove_points_with_too_high_leverage(GLM_Aalborg_Full, df_Aalborg)
 GLMrem_Aalborg_Full <- lm(data = dfrem_Aalborg,
                          ln_Price ~ Rooms + Ground_Area + Home_Area +

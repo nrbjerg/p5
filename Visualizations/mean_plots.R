@@ -1,20 +1,3 @@
-create_dataset <- function (subcriteria) { # Subcriteria, is a function allowing us to specify if we want to get wealthy or not, or we might not even care.
-  prices <- c()
-  cities <- c()
-  trends <- c()
-  for (trend in c(1:12)) {
-    for (city in c("Copenhagen", "Aarhus", "Aalborg", "Odense")) {
-      prices <- c(prices, mean(df$Price[subcriteria(df) & df$Municipality == city & df$Trend == trend]))
-      cities <- c(cities, city)
-      trends <- c(trends, trend)
-    }
-    prices <- c(prices, mean(df$Price[subcriteria(df) & df$Trend == trend]))
-    cities <- c(cities, "General")
-    trends <- c(trends, trend)
-  }
-  return(data.frame(Mean_Prices = prices, Municipality = cities, Trend = trends))
-}
-
 color_palette <- function (municipality) {
   if (municipality == "Copenhagen") {
     return("red")
@@ -31,12 +14,12 @@ color_palette <- function (municipality) {
   return("black")
 }
 
-vector_color_palette <- Vectorize(color_palette)
+vectorized_color_palette <- Vectorize(color_palette)
 
 plot_data <- function(df, title) {
   municipalities = unique(df$Municipality)
-  plot(df$Trend, df$Mean_Prices, col = vector_color_palette(df$Municipality), xlab = "Trend", ylab = "Mean Prices", main = title, pch = 16)
-  legend(x = "topleft", legend = municipalities, col = vector_color_palette(municipalities), lty = rep(1, 5), cex = 1)
+  plot(df$Trend, df$Mean_Prices, col = vectorized_color_palette(df$Municipality), xlab = "Trend", ylab = "Mean Prices", main = title, pch = 16)
+  legend(x = "topleft", legend = municipalities, col = vectorized_color_palette(municipalities), lty = rep(1, 5), cex = 1)
   for (municipality in municipalities) {
     indices = df$Municipality == municipality
     lines(df$Trend[indices], df$Mean_Prices[indices], col = color_palette(municipality), type = "l")      
@@ -52,6 +35,7 @@ plot_data(general_data, "")
 
 par(mfrow = c(1, 2))
 
+# Plot mean prices for wealthy and non wealthy areas against trend.
 plot_data(wealthy_data, "Wealthy Data")
 plot_data(non_wealthy_data, "Non Wealthy Data")
 
@@ -94,6 +78,7 @@ df_p <- data.frame(Municipality <- municipalities, Trend = trends, Percentages =
 municipalities = unique(df_p$Municipality)
 plot(df_p$Trend, df_p$Percentages, col = vector_color_palette(df_p$Municipality), xlab = "Trend", ylab = "Percentages of Wealthy Homes",  pch = 16)
 legend(x = "bottomleft", legend = municipalities, col = vector_color_palette(municipalities), lty = rep(1, 5), cex = 1)
+
 for (municipality in municipalities) {
   indices = df_p$Municipality == municipality
   lines(df_p$Trend[indices], df_p$Percentages[indices], col = color_palette(municipality), type = "l")
